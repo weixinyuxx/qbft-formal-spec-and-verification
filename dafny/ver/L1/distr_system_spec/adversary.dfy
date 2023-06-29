@@ -22,7 +22,25 @@ module L1_Adversary
         && |a.byz| <= f(|validators([configuration.genesisBlock])|)
     }    
 
+    predicate AdvPrepare(preparePayload: SignedPrepare, c: Configuration, messagesReceived: set<QbftMessage>, a: Adversary) {
+        || preparePayload in signedPreparePayloads(messagesReceived)
+        || !(recoverSignedPrepareAuthor(preparePayload) in seqToSet(c.nodes) - a.byz)
+    }
+
+    predicate AdvBlock(b: Block, c: Configuration, messagesReceived: set<QbftMessage>, a: Adversary) {
+        forall cs | cs in b.header.commitSeals ::
+            || (cs in getCommitSeals(messagesReceived))
+            || !(recoverSignedHashAuthor(hashBlockForCommitSeal(b),cs) in seqToSet(c.nodes) - a.byz)
+    }
+
+    predicate AdvRoundChange(m: SignedRoundChange, c: Configuration, messagesReceived: set<QbftMessage>, a: Adversary) {
+        || m in signedRoundChangePayloads(messagesReceived)
+        || !(recoverSignedRoundChangeAuthor(m) in seqToSet(c.nodes) - a.byz) 
+    }
+
+    
     predicate AdversaryNext(
+        c: Configuration,
         a: Adversary, 
         inQbftMessages: set<QbftMessage>, 
         a': Adversary,
@@ -32,57 +50,53 @@ module L1_Adversary
         var messagesReceived := a.messagesReceived + inQbftMessages;
 
         && a' == a.(messagesReceived := messagesReceived)
-        // *** adversary should also be able to send other messages (unsigned or incorrectly signed)
-        // *** if the implementation does not check signature (and only read the author), the proof will still pass
         && (forall m | m in outQbftMessages ::
                         || m.message in messagesReceived
                         || (
                             && m.message.Proposal?
                             && (
                                 || m.message.proposalPayload in signedProposalPayloads(messagesReceived)
-                                || recoverSignedProposalAuthor(m.message.proposalPayload) in a.byz // random signature
-                                // Block cannot be properly signed
+                                || !(recoverSignedProposalAuthor(m.message.proposalPayload) in seqToSet(c.nodes) - a.byz)
                             )
+                            && AdvBlock(m.message.proposedBlock, c, messagesReceived, a)
                             && (forall m' | m' in m.message.proposalJustification ::
-                                || m' in signedRoundChangePayloads(messagesReceived)
-                                || recoverSignedRoundChangeAuthor(m') in a.byz // random
+                                AdvRoundChange(m', c, messagesReceived, a)
                             )
                             && (forall m' | m' in m.message.roundChangeJustification ::
-                                || m' in signedPreparePayloads(messagesReceived)
-                                || recoverSignedPrepareAuthor(m') in a.byz // random
-                            )                            
+                                AdvPrepare(m', c, messagesReceived, a)
+                            )
                         )
                         || (
                             && m.message.RoundChange?
-                            && m.message.roundChangePayload in signedRoundChangePayloads(messagesReceived)
-                            // it may be signed by adversaries
-                            && (forall m' | m' in m.message.roundChangeJustification ::
-                                || m' in signedPreparePayloads(messagesReceived)
-                                || recoverSignedPrepareAuthor(m') in a.byz // random
+                            && AdvRoundChange(m.message.roundChangePayload, c, messagesReceived, a)
+                            && (
+                                || m.message.proposedBlockForNextRound.None?
+                                || AdvBlock(m.message.proposedBlockForNextRound.value, c, messagesReceived, a)
                             )               
-                            // block cannot be properly signed              
+                            && (forall m' | m' in m.message.roundChangeJustification ::
+                                    AdvPrepare(m', c, messagesReceived, a)
+                            )
                         ) 
                         || (
                             && m.message.Prepare?
-                            && recoverSignature(m.message) in a.byz // random
-                        )   
+                            && AdvPrepare(m.message.preparePayload, c, messagesReceived, a)
+                        )
                         || (
                             && m.message.Commit?
-                            && recoverSignature(m.message) in a.byz // random
+                            && !(recoverSignature(m.message) in seqToSet(c.nodes) - a.byz)
                             &&  var uPayload := m.message.commitPayload.unsignedPayload;
                                 var cs := uPayload.commitSeal;
                             && (
                                 || (cs in getCommitSeals(messagesReceived))
-                                || (forall b :: 
-                                        recoverSignedHashAuthor(hashBlockForCommitSeal(b),cs) in a.byz) // random
+                                || (forall b :: !(recoverSignedHashAuthor(hashBlockForCommitSeal(b), cs) in seqToSet(c.nodes) - a.byz))
+                                // not sure whether this is implementable (by public key cryptography)
                             )
                         )                                        
                         || (
                             && m.message.NewBlock?
-                            && (forall cs | cs in m.message.block.header.commitSeals :: 
-                                            || (cs in getCommitSeals(messagesReceived))
-                                            || (recoverSignedHashAuthor(hashBlockForCommitSeal(m.message.block),cs) in a.byz)) // random
+                            && AdvBlock(m.message.block, c, messagesReceived, a)
                         )
         )
     }    
+
 }

@@ -251,7 +251,7 @@ module L1_TraceGeneralLemmas {
                         ,
                     t(i).adversary
                 )];
-                assert !isHonest(t(i-1),node) ==> AdversaryNext(instrtim1[i-1].adversary,messageReceived, ret[i].adversary,outm);
+                assert !isHonest(t(i-1),node) ==> AdversaryNext(c,instrtim1[i-1].adversary,messageReceived, ret[i].adversary,outm);
                 assert !isHonest(t(i-1),node) ==> ret[i-1].nodes == ret[i].nodes;
                 assert isHonest(t(i-1),node) ==> DSInstrNextNodeMultiple(instrtim1[i-1], ret[i], outm, inm, node);
                 assert DSInstrNextNodeMultiple(instrtim1[i-1], ret[i], outm, inm, node);

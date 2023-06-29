@@ -118,6 +118,21 @@ module L1_CommonFunctions{
                     && m.commitPayload.unsignedPayload.commitSeal == s
                 ::
                     s)
+        +
+
+        (set m,s |  && m in msgs
+                    && m.Proposal?
+                    && s in m.proposedBlock.header.commitSeals
+                ::
+                    s)
+        +
+
+        (set m,s |  && m in msgs
+                    && m.RoundChange?
+                    && m.proposedBlockForNextRound.Optional?
+                    && s in m.proposedBlockForNextRound.value.header.commitSeals
+                ::
+                    s)
     }
 
     lemma lUniqueSeq<T>(s:seq<T>)

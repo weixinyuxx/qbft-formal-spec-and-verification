@@ -250,7 +250,7 @@ module L1_InstrDSStateInvariantsHeavy
         messagesReceivedByTheNodes: multiset<QbftMessageWithRecipient>,
         node: Address
     )    
-    requires validInstrDSState(s)  
+    requires validInstrDSState(s)
     requires !isInstrNodeHonest(s, node)
     requires InstrDSNextNodeSingle(s,s',messagesSentByTheNodes,messagesReceivedByTheNodes,node)
     ensures forall cs,b |  && cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)))

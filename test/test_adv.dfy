@@ -41,7 +41,7 @@ module test_change_adv {
             else
                 && (forall a:Address | isHonest(s, a) :: s.nodes[a] == s'.nodes[a])
                 && (forall a:Address | a in s.nodes.Keys :: s.nodes[a].messagesReceived == s'.nodes[a].messagesReceived)
-                && AdversaryNext(s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
+                && AdversaryNext(s.configuration,s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
         )
         && s'.configuration == s.configuration
     }

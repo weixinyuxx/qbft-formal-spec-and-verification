@@ -75,7 +75,7 @@ module L1_DistributedSystem
                 && NodeNext(s.nodes[node],messageReceived,s'.nodes[node],messagesSentByTheNodes)
             else
                 && s'.nodes == s.nodes // why the state of an adversary node cannot change
-                && AdversaryNext(s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
+                && AdversaryNext(s.configuration,s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
         )
         && s'.configuration == s.configuration
     }

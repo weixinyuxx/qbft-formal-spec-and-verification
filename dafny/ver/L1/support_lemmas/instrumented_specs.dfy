@@ -136,7 +136,7 @@ module L1_InstrumentedSpecs
                 && InstrNodeNextSingleStep(s.nodes[node],messageReceived,s'.nodes[node],messagesSentByTheNodes)
             else
                 && s'.nodes == s.nodes
-                && AdversaryNext(s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
+                && AdversaryNext(s.configuration,s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
         )
         && s'.configuration == s.configuration
     }    
@@ -228,7 +228,7 @@ module L1_InstrumentedSpecs
                 && InstrNodeNextMultiple(s.nodes[node],messageReceived,s'.nodes[node],messagesSentByTheNodes)
             else
                 && s'.nodes == s.nodes
-                && AdversaryNext(s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
+                && AdversaryNext(s.configuration,s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
         )
         && s'.configuration == s.configuration
     }      
