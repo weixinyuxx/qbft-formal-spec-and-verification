@@ -831,7 +831,7 @@ module L1_RefinementForMutipleStep {
     ensures indInvForBlockchainConsistency(s) ==> validInstrDSState(s)
     {
         && allIndInv(s)
-        && invBlockchainConsistency(s)
+        && invBlockchainConsistency(s) 
     }      
 
     lemma lemmaInstrDSNextMultipleIndInvForBlockchainConsistency(

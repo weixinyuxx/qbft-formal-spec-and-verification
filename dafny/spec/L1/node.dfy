@@ -100,7 +100,7 @@ module L1_Spec
                     && validNodeState(s[|s|-1])
                     && NodeNextSubStep(s[|s|-1], afterNext, messages)
                 )
-            )
+            ) // cannot proceed
             && outQbftMessages == setUnionOnSeq(o)
     }
 
@@ -145,6 +145,7 @@ module L1_Spec
             )
         )
         || UponNewBlock(current, next, outQbftMessages)
+        // stutter step
         || (
             && next == current
             && outQbftMessages == {}
@@ -217,6 +218,7 @@ module L1_Spec
                         )
         else
             false
+        // they could send the message over and over again (but is not regarded as proceeding in node.dfy)
 
     }  
  
@@ -259,7 +261,7 @@ module L1_Spec
                                     current.localTime
                                 else
                                     current.timeLastRoundStart  ,
-                            messagesReceived := current.messagesReceived + {prepare}                 
+                            messagesReceived := current.messagesReceived + {prepare}              
                         )
 
         else
@@ -290,7 +292,7 @@ module L1_Spec
                             && var uPayload := m.commitPayload.unsignedPayload;
                             && uPayload.height == |current.blockchain|
                             && uPayload.round == current.round
-                            && recoverSignedCommitAuthor(m.commitPayload) == current.id
+                            && recoverSignedCommitAuthor(m.commitPayload) == current.id         
         then          
             var proposedBlock := optionGet(current.proposalAcceptedForCurrentRound).proposedBlock;
 
@@ -453,7 +455,7 @@ module L1_Spec
         outQbftMessages: set<QbftMessageWithRecipient>)
     requires validNodeState(current)
     {
-        if  hasReceivedProposalJustification(current)
+        if hasReceivedProposalJustification(current)
         then
             var roundChanges,
                 prepares,

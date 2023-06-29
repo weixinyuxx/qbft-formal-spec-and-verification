@@ -61,6 +61,7 @@ module L1_DistributedSystem
         node: Address
     )
     requires validDSState(s)
+    // why this well-formed is a precondition instead of a &&
     {
         && NetworkNext(s.environment,s'.environment,messagesSentByTheNodes,messagesReceivedByTheNodes)
         && (forall mr:QbftMessageWithRecipient | mr in messagesReceivedByTheNodes :: mr.recipient == node)
@@ -73,7 +74,7 @@ module L1_DistributedSystem
                 && s'.adversary == s.adversary
                 && NodeNext(s.nodes[node],messageReceived,s'.nodes[node],messagesSentByTheNodes)
             else
-                && s'.nodes == s.nodes
+                && s'.nodes == s.nodes // why the state of an adversary node cannot change
                 && AdversaryNext(s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes)
         )
         && s'.configuration == s.configuration

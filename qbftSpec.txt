@@ -1,0 +1,18 @@
+	• dafny/ver/L1
+		○ Theorems.dfy
+			§ predicate consistency(t: Trace)
+			§ predicate consistencyAndStability(t: Trace)
+		○ Theorems_defs.dfy
+	• dafny/ver/L1/support_lemmas
+		○ Trace_defs.dfy
+		○ Axioms.dfy
+	• dafny/ver/L1/distr_system_spec
+		○ Distributed_system.dfy
+		○ Network.dfy
+		○ Adversary.dfy
+		○ *common_functions.dfy
+	• Dafny/spec/L1
+		○ *Types.dfy
+		○ Node.dfy
+		○ Node_auxiliary_functions.dfy
+		

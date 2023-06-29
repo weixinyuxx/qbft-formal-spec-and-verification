@@ -4,7 +4,7 @@
  *
  * This document is available under the terms of the Apache 2.0 License
  * (http://www.apache.org/licenses/LICENSE-2.0.html)
- *
+ * 
  * This file does provide any specification. It just contains lemmas that are
  * used in the `UponCommit` and `UponRoundChange` predicates in `node.dfy` when
  * declaring sets via such-that assignment (`:|`) as the verifier is not able to

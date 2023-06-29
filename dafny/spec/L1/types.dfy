@@ -12,15 +12,15 @@ module L1_SpecTypes
      * This section includes the declarations of those types that are left
      * undefined in this specification.
      ========================================================================*/
-    type {:extern "Address"} Address(==,!new)
+    type Address = int
 
-    type {:extern "BlockBody"} BlockBody(==,!new)
+    type BlockBody = string
 
-    type {:extern "Transaction"} Transaction(==,!new)
+    type Transaction = string
 
-    type {:extern "Hash"} Hash(==,!new)
-
-    type {:extern "Signature"} Signature(==,!new)
+    type Hash = int
+    
+    type Signature = int
 
     /** =======================================================================
      * BLOCKCHAIN TYPES

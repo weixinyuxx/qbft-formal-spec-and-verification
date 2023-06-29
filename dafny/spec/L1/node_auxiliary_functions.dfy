@@ -5,7 +5,7 @@
  * (http://www.apache.org/licenses/LICENSE-2.0.html)
  */
 include "types.dfy"
-include "lemmas.dfy"
+// include "lemmas.dfy"
 
 module L1_AuxiliaryFunctionsAndLemmas
 {
@@ -50,16 +50,18 @@ module L1_AuxiliaryFunctionsAndLemmas
      * specification must satisfy.
      */
     lemma {:axiom} lemmaDigest()
-    ensures forall b1, b2 :: digest(b1) == digest(b2) ==> b1 == b2     
+    ensures forall b1, b2 :: digest(b1) == digest(b2) ==> b1 == b2 // collision-resistant  
 
-    
-    function signProposal(msg:UnsignedProposal, author: Address): SignedProposal  
-    function recoverSignedProposalAuthor(msg:SignedProposal): Address     
+
+    function signProposal(msg:UnsignedProposal, author: Address): SignedProposal
+
+
+    function recoverSignedProposalAuthor(msg:SignedProposal): Address
     lemma {:axiom} lemmaSignedProposal()
-    ensures forall m,a :: recoverSignedProposalAuthor(signProposal(m,a)) == a
-    ensures forall m1,m2,a1,a2 :: (m1 != m2 || a1 != a2) ==> signProposal(m1,a1) != signProposal(m2,a2)
-    ensures forall m: SignedProposal :: signProposal(m.unsignedPayload,recoverSignedProposalAuthor(m)) == m
-    ensures forall m,a :: signProposal(m,a).unsignedPayload == m 
+    ensures forall m,a :: recoverSignedProposalAuthor(signProposal(m,a)) == a // axiom for correctness of recover function
+    ensures forall m1,m2,a1,a2 :: (m1 != m2 || a1 != a2) ==> signProposal(m1,a1) != signProposal(m2,a2) // collision-resistant
+    ensures forall m: SignedProposal :: signProposal(m.unsignedPayload,recoverSignedProposalAuthor(m)) == m // probably redundant given the first postcondition
+    ensures forall m,a :: signProposal(m,a).unsignedPayload == m // SignedProposal data structure
 
     function signPrepare(msg:UnsignedPrepare, author: Address): SignedPrepare
     function recoverSignedPrepareAuthor(msg:SignedPrepare): Address    
@@ -119,6 +121,7 @@ module L1_AuxiliaryFunctionsAndLemmas
     /**
      * @returns The minimum value in set `S`.
      */
+    // ***: this function is unimplementable (but does not affect correctness) requires
     function minSet(S:set<nat>): nat
     ensures minSet(S) in S 
     ensures forall e | e in S :: e >= minSet(S)    
@@ -217,7 +220,8 @@ module L1_AuxiliaryFunctionsAndLemmas
      *       `Blockchain`s that have the same length where each block in one
      *       blockchain is identical to the block in the other blockchain at the
      *       same position except for the field `commitSeals` evaluate to the
-     *       same set of validators. 
+     *       same set of validators.
+     * ? round number
      */
     function validators(blockchain:Blockchain): seq<Address>
     {
@@ -584,6 +588,7 @@ module L1_AuxiliaryFunctionsAndLemmas
         )
         // NOTE: This check is not required by the QBFT paper as the message structure is a bit different
         && digest(m.proposedBlock) == m.proposalPayload.unsignedPayload.digest
+        // ???
         && (
             || (
                 && !optionIsPresent(current.proposalAcceptedForCurrentRound)
