@@ -188,6 +188,7 @@ module test_send_adv {
                             && m.message.Proposal?
                             && (
                                 || m.message.proposalPayload in signedProposalPayloads(messagesReceived)
+                                // actually it should be forall blocks
                                 || !(recoverSignedProposalAuthor(m.message.proposalPayload) in seqToSet(c.nodes) - a.byz)
                             )
                             && AdvBlock(m.message.proposedBlock, c, messagesReceived, a)
