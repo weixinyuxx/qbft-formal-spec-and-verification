@@ -95,12 +95,12 @@ module L1_Spec
                 && validNodeState(s[i])  
                 && NodeNextSubStep(s[i], s[i+1], o[i])
             )          
-            // && (forall afterNext, messages | afterNext != s[|s|-1] :: 
-            //     !(
-            //         && validNodeState(s[|s|-1])
-            //         && NodeNextSubStep(s[|s|-1], afterNext, messages)
-            //     )
-            // ) // cannot proceed
+            && (forall afterNext, messages | afterNext != s[|s|-1] :: 
+                !(
+                    && validNodeState(s[|s|-1])
+                    && NodeNextSubStep(s[|s|-1], afterNext, messages)
+                )
+            ) // cannot proceed
             && outQbftMessages == setUnionOnSeq(o)
     }
 
