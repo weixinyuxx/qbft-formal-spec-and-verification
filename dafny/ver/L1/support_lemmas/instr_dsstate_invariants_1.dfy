@@ -278,15 +278,24 @@ module L1_InstrDSStateInvariantsHeavy
                                         && m.NewBlock?
                                         && cs in m.block.header.commitSeals
                                     )
+                                    || (
+                                        && m.Proposal?
+                                        && cs in m.proposedBlock.header.commitSeals
+                                    )
+                                    || (
+                                        && m.RoundChange?
+                                        && m.proposedBlockForNextRound.Optional?
+                                        && cs in m.proposedBlockForNextRound.value.header.commitSeals
+                                    )
                                 );
 
-            assert  ||  (exists m ::    && m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes))
-                                        && m.Commit?
-                                        && m.commitPayload.unsignedPayload.commitSeal == cs)
+            // assert  ||  (exists m ::    && m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes))
+            //                             && m.Commit?
+            //                             && m.commitPayload.unsignedPayload.commitSeal == cs)
 
-                    ||  (exists m ::    && m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes))
-                                        && m.NewBlock?
-                                        && cs in m.block.header.commitSeals);
+            //         ||  (exists m ::    && m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes))
+            //                             && m.NewBlock?
+            //                             && cs in m.block.header.commitSeals);
 
             var m :| && m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes))
                                 && (
@@ -298,6 +307,15 @@ module L1_InstrDSStateInvariantsHeavy
                                         && m.NewBlock?
                                         && cs in m.block.header.commitSeals
                                     )
+                                    || (
+                                        && m.Proposal?
+                                        && cs in m.proposedBlock.header.commitSeals
+                                    )
+                                    || (
+                                        && m.RoundChange?
+                                        && m.proposedBlockForNextRound.Optional?
+                                        && cs in m.proposedBlockForNextRound.value.header.commitSeals
+                                    )
                                 );
 
             if m.Commit?
@@ -306,11 +324,12 @@ module L1_InstrDSStateInvariantsHeavy
                 assert
                         || (cs in getCommitSeals(s'.adversary.messagesReceived))
                         || (forall b | digest(b) == m.commitPayload.unsignedPayload.digest :: 
-                                recoverSignedHashAuthor(hashBlockForCommitSeal(b),cs) in s.adversary.byz);  
-                assert (recoverSignedHashAuthor(hashBlockForCommitSeal(b),cs) !in s.adversary.byz);                  
+                                !(recoverSignedHashAuthor(hashBlockForCommitSeal(b),cs) in seqToSet(s.configuration.nodes) - s.adversary.byz)); 
+                assert s.nodes.Keys == seqToSet(s.configuration.nodes);
+                assert csAuthor in seqToSet(s.configuration.nodes) - s.adversary.byz;
                 assert cs in getCommitSeals(s'.adversary.messagesReceived);
             }
-            else
+            else if m.NewBlock?
             {
                 assert cs in m.block.header.commitSeals;
                 assert  || (cs in getCommitSeals(s'.adversary.messagesReceived))
@@ -322,9 +341,7 @@ module L1_InstrDSStateInvariantsHeavy
 
             assert cs in getCommitSeals(s'.adversary.messagesReceived);
 
-            //         ||;
         }
-        // assert cs in getCommitSeals(s'.adversary.messagesReceived);
     }    
 
     lemma lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSignerHelper1_2(

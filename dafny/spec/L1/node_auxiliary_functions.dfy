@@ -60,7 +60,7 @@ module L1_AuxiliaryFunctionsAndLemmas
     lemma {:axiom} lemmaSignedProposal()
     ensures forall m,a :: recoverSignedProposalAuthor(signProposal(m,a)) == a // axiom for correctness of recover function
     ensures forall m1,m2,a1,a2 :: (m1 != m2 || a1 != a2) ==> signProposal(m1,a1) != signProposal(m2,a2) // collision-resistant
-    ensures forall m: SignedProposal :: signProposal(m.unsignedPayload,recoverSignedProposalAuthor(m)) == m // probably redundant given the first postcondition
+    ensures forall m: SignedProposal :: signProposal(m.unsignedPayload,recoverSignedProposalAuthor(m)) == m
     ensures forall m,a :: signProposal(m,a).unsignedPayload == m // SignedProposal data structure
 
     function signPrepare(msg:UnsignedPrepare, author: Address): SignedPrepare
