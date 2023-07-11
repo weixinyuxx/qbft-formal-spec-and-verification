@@ -57,6 +57,7 @@ module L1_SpecNetwork
         messagesReceivedByTheNodes: multiset<QbftMessageWithRecipient>
     )
     {
+        // network time never get updated
         || NetworkDeliverNext(e, e', messagesSentByTheNodes,messagesReceivedByTheNodes)
         || (
             && NetworkStutter(e, e')

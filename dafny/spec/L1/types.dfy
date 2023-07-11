@@ -14,7 +14,7 @@ module L1_SpecTypes
      ========================================================================*/
     type Address = int
 
-    type BlockBody = string
+    type BlockBody = int
 
     type Transaction = string
 
@@ -124,8 +124,8 @@ module L1_SpecTypes
         | Proposal(
             proposalPayload: SignedProposal,
             proposedBlock:Block, 
-            proposalJustification: set<SignedRoundChange>,
-            roundChangeJustification: set<SignedPrepare>
+            proposalJustification: set<SignedRoundChange>, // this is the newest value
+            roundChangeJustification: set<SignedPrepare> // this is indeed a prepared value
         )
         | Prepare(
             preparePayload: SignedPrepare
@@ -135,8 +135,8 @@ module L1_SpecTypes
         )
         | RoundChange(
             roundChangePayload: SignedRoundChange,
-            proposedBlockForNextRound: Optional<Block>,
-            roundChangeJustification: set<SignedPrepare>
+            proposedBlockForNextRound: Optional<Block>, // not taking advantage of digest here?
+            roundChangeJustification: set<SignedPrepare> // this is indeed a prepared value
         )
         | NewBlock(
             block: Block

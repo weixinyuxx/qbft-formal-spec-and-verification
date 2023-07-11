@@ -95,12 +95,12 @@ module L1_Spec
                 && validNodeState(s[i])  
                 && NodeNextSubStep(s[i], s[i+1], o[i])
             )          
-            // && (forall afterNext, messages | afterNext != s[|s|-1] :: 
-            //     !(
-            //         && validNodeState(s[|s|-1])
-            //         && NodeNextSubStep(s[|s|-1], afterNext, messages)
-            //     )
-            // ) // cannot proceed
+            && (forall afterNext, messages | afterNext != s[|s|-1] :: 
+                !(
+                    && validNodeState(s[|s|-1])
+                    && NodeNextSubStep(s[|s|-1], afterNext, messages)
+                )
+            ) // cannot proceed
             && outQbftMessages == setUnionOnSeq(o)
     }
 
@@ -179,6 +179,7 @@ module L1_Spec
      *          next local clock tick.
      ========================================================================*/  
 
+    /// Proposal (pre-prepare) ///
     predicate UponBlockTimeout(
         current:NodeState,
         next: NodeState,
@@ -187,6 +188,7 @@ module L1_Spec
         )
     requires validNodeState(current)      
     {
+        // start executing the next consensus instance (block) -- so they are doing it one by one
         if  && current.round == 0
             && proposer(0,current.blockchain) == current.id
             && current.localTime >= 
@@ -194,6 +196,7 @@ module L1_Spec
                 current.configuration.blockTime 
         then
             var block := getNewBlock(current, 0);
+            // function getNewBlock(nodeState:NodeState, round:nat): Block
 
             var proposal :=
                 Proposal(
@@ -221,7 +224,7 @@ module L1_Spec
         // they could send the message over and over again (but is not regarded as proceeding in node.dfy)
 
     }  
- 
+    /// Prepare ///
     predicate UponProposal(
         current:NodeState, 
         next: NodeState,
@@ -268,6 +271,7 @@ module L1_Spec
             false
     }   
 
+    /// Commit ///
     predicate UponPrepare(
         current:NodeState,
         next: NodeState,
@@ -285,8 +289,8 @@ module L1_Spec
                                 current.round,
                                 digest(optionGet(current.proposalAcceptedForCurrentRound).proposedBlock),
                                 validators(current.blockchain))
-                    && |QofP| >= quorum(|validators(current.blockchain)|) 
-
+                    && |QofP| >= quorum(|validators(current.blockchain)|)
+            // it has not committed before (is this necessary?)
             && !exists m :: && m in current.messagesReceived
                             && m.Commit?
                             && var uPayload := m.commitPayload.unsignedPayload;
@@ -332,6 +336,7 @@ module L1_Spec
         set m:QbftMessage | m in msgs :: m.commitPayload.unsignedPayload.commitSeal
     }
 
+    /// Decide ///
     predicate UponCommit(
         current:NodeState,
         next: NodeState,
@@ -368,7 +373,7 @@ module L1_Spec
                         header := proposedBlock.header.(
                             commitSeals := getCommitSealsFromCommitMessages(QofC)
                         )
-                    );            
+                    );
 
                 var newBlock := NewBlock( blockWithAddedCommitSeals);
 
@@ -443,6 +448,7 @@ module L1_Spec
                             round := newRound,
                             proposalAcceptedForCurrentRound := Optional.None,
                             messagesReceived := current.messagesReceived + {roundChange}
+                            // time last round start
                         )
         else
             false
@@ -456,6 +462,7 @@ module L1_Spec
     requires validNodeState(current)
     {
         if hasReceivedProposalJustification(current)
+        // why should a non-leader propose a block?
         then
             var roundChanges,
                 prepares,
@@ -463,7 +470,8 @@ module L1_Spec
                 block
                 :|
                     isReceivedProposalJustification(roundChanges, prepares, newRound, block, current);
-
+        // if a node did not accept any proposal before, and round == 0, it will start proposing by itself
+        // but the "proposer" may not be itself (which other nodes will not accept, but it's just meaningless)
             var proposal :=
                 Proposal(
                     signProposal(
@@ -523,6 +531,7 @@ module L1_Spec
                             round := newRound,
                             proposalAcceptedForCurrentRound := Optional.None,
                             messagesReceived := current.messagesReceived + {roundChange}
+                            // time last round start
                         )
         else
             false

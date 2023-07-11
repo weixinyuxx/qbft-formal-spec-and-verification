@@ -527,7 +527,7 @@ module L1_AuxiliaryFunctionsAndLemmas
         roundLeader: Address,
         validators:seq<Address>)
     {
-        if round == 0 then 
+        if round == 0 then  // this will cause hasReceivedProposalJustification evaluates to true
             && validateBlock(block)
             && block.header.roundNumber == 0
             && block.header.height == height
@@ -553,7 +553,7 @@ module L1_AuxiliaryFunctionsAndLemmas
                                 replaceRoundInBlock(
                                     block,
                                     optionGet(rcm.unsignedPayload.preparedRound)
-                                );                        
+                                );                        // should proposer also change?
                         && optionGet(rcm.unsignedPayload.preparedValue) == digest(proposedBlockWithOldRound)
                         && (forall pm | pm in prepares :: 
                                             validSignedPrepareForHeightRoundAndDigest(
@@ -573,8 +573,9 @@ module L1_AuxiliaryFunctionsAndLemmas
     {
         && m.Proposal?
         && var roundLeader := proposer(m.proposalPayload.unsignedPayload.round,current.blockchain);        
-        && m.proposalPayload.unsignedPayload.height == |current.blockchain|
-        && recoverSignedProposalAuthor(m.proposalPayload) == roundLeader
+        && m.proposalPayload.unsignedPayload.height == |current.blockchain| // this is the proposal for the current instance
+        && recoverSignedProposalAuthor(m.proposalPayload) == roundLeader // this is sent by the leader
+        // either round == 0, or they can provide a valid set of 
         && isProposalJustification(
             m.proposalJustification,
             m.roundChangeJustification,
@@ -588,7 +589,6 @@ module L1_AuxiliaryFunctionsAndLemmas
         )
         // NOTE: This check is not required by the QBFT paper as the message structure is a bit different
         && digest(m.proposedBlock) == m.proposalPayload.unsignedPayload.digest
-        // ???
         && (
             || (
                 && !optionIsPresent(current.proposalAcceptedForCurrentRound)
@@ -623,13 +623,13 @@ module L1_AuxiliaryFunctionsAndLemmas
             extractSignedPrepares(prepares),
             receivedBlocksInRoundChanges(roundChanges),
             |current.blockchain|,
-            newRound,
+            newRound, // 0
             block, 
             b => && b == getNewBlock(current, newRound),
             proposer(newRound,current.blockchain),
             validators(current.blockchain))
         && (
-            || (
+            || ( // liveness issue in round change
                 && !optionIsPresent(current.proposalAcceptedForCurrentRound)
                 && newRound == current.round
             )

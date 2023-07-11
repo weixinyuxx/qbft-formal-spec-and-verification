@@ -43,6 +43,7 @@ module L1_Adversary
                                 || recoverSignedProposalAuthor(m.message.proposalPayload) in a.byz // random signature
                                 // Block cannot be properly signed
                             )
+                            
                             && (forall m' | m' in m.message.proposalJustification ::
                                 || m' in signedRoundChangePayloads(messagesReceived)
                                 || recoverSignedRoundChangeAuthor(m') in a.byz // random
