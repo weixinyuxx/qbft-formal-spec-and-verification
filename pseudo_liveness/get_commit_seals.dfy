@@ -116,10 +116,10 @@ module get_commit_seals {
         }
         assert isValidProposal(proposal3(), intermediateState4()) by {
             lemmaSignedProposal();
-            // assert validateNonPreparedBlock(getNewBlock(intermediateState3_1(), 0), [genesisBlock(), signedBlock(2)], 0) by {
-            //     assert getNewBlock(intermediateState3_1(), 0).header.proposer == 1;
-            //     assert validateEthereumBlock([genesisBlock(), signedBlock(2)], getNewBlock(intermediateState3_1(), 0));
-            // }
+            assert validateNonPreparedBlock(getNewBlock(intermediateState3_1(), 0), [genesisBlock(), signedBlock(2)], 0) by {
+                assert getNewBlock(intermediateState3_1(), 0).header.proposer == 1;
+                assert validateEthereumBlock([genesisBlock(), signedBlock(2)], getNewBlock(intermediateState3_1(), 0));
+            }
         }
         assert NodeNext(s3().nodes[2], newMessagesReceived4(), s4().nodes[2], outPrepare4()) by {
             var s := [currentWithNewMessagesReceived4(), intermediateState4(), finalState4()];

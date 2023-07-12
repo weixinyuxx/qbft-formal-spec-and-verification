@@ -12,23 +12,23 @@ module test_consistency {
     // proposer 0,1,2,3
     function b1(): Block
     {
-        var b1 := Block(BlockHeader(0,0,{0},0,0), "the first proposal", ["trans1s"]);
+        var b1 := Block(BlockHeader(0,0,{0},0,0), 1, ["trans1s"]);
         b1
     }
     function b2(): Block
     {
-        var b2 := Block(BlockHeader(1,1,{0},1,3), "the second proposal", ["trans2s", "dummy transactions"]);
+        var b2 := Block(BlockHeader(1,1,{0},1,3), 2, ["trans2s", "dummy transactions"]);
         b2
     }
     function b3(): Block
     {
-        var b3 := Block(BlockHeader(2,2,{0},2,5), "the third proposal", ["trans3s"]);
+        var b3 := Block(BlockHeader(2,2,{0},2,5), 3, ["trans3s"]);
         b3
     }
     function genesisBlock(): Block
     {
         var header := BlockHeader(1, 0, {}, 0, 0);
-        Block(header, "", [])
+        Block(header, 0, [])
     }
     function c(): Configuration
     {
@@ -230,7 +230,7 @@ module test_consistency {
     function tInvalidConfig1(i:nat): DSState
     {
         var header := BlockHeader(5, 10, {0, 1}, 10, 10);
-        var randomBlock := Block(header, "random", ["transaction1", "transaction2"]);
+        var randomBlock := Block(header, 324, ["transaction1", "transaction2"]);
         var c := Configuration([], randomBlock, 10000);
         tBlockchain1(0).(configuration := c)
     }
@@ -238,7 +238,7 @@ module test_consistency {
     function tInvalidConfig2(i:nat): DSState
     {
         var header := BlockHeader(1, 0, {}, 0, 0);
-        var randomBlock := Block(header, "random", []);
+        var randomBlock := Block(header, 324, []);
         var c := Configuration([1,3,4,2], randomBlock, 10000);
         tBlockchain1(0).(configuration := c)
     }
@@ -265,13 +265,13 @@ module test_consistency {
     // a different block which is adversary
     {
         var header := BlockHeader(1, 0, {}, 0, 0);
-        var genesisBlock := Block(header, "", []);
+        var genesisBlock := Block(header, 0, []);
         var c := Configuration([0,1,2,3], genesisBlock, 0);
         var env := Network([0,1,2], multiset{}, 0, multiset{});
 
-        var b1 := Block(BlockHeader(0,0,{0},0,0), "the first proposal", ["trans1s"]);
-        var b2 := Block(BlockHeader(1,1,{0},1,3), "the second proposal", ["trans2s"]);
-        var b3 := Block(BlockHeader(2,2,{0},2,5), "the third proposal", ["trans3s"]);
+        var b1 := Block(BlockHeader(0,0,{0},0,0), 1, ["trans1s"]);
+        var b2 := Block(BlockHeader(1,1,{0},1,3), 2, ["trans2s"]);
+        var b3 := Block(BlockHeader(2,2,{0},2,5), 3, ["trans3s"]);
         
         var blockchain1 := [b1];
         var blockchain2 := [b1,b2];
@@ -296,13 +296,13 @@ module test_consistency {
     // all valid blockchain start with genesisBlock
     {
         var header := BlockHeader(1, 0, {}, 0, 0);
-        var genesisBlock := Block(header, "", []);
+        var genesisBlock := Block(header, 0, []);
         var c := Configuration([0,1,2,3], genesisBlock, 0);
         var env := Network([0,1,2], multiset{}, 0, multiset{});
 
-        var b1 := Block(BlockHeader(0,0,{0},0,0), "the first proposal", ["trans1s"]);
-        var b2 := Block(BlockHeader(1,1,{0},1,3), "the second proposal", ["trans2s"]);
-        var b3 := Block(BlockHeader(2,2,{0},2,5), "the third proposal", ["trans3s"]);
+        var b1 := Block(BlockHeader(0,0,{0},0,0), 1, ["trans1s"]);
+        var b2 := Block(BlockHeader(1,1,{0},1,3), 2, ["trans2s"]);
+        var b3 := Block(BlockHeader(2,2,{0},2,5), 3, ["trans3s"]);
         
         var blockchain1 := [genesisBlock,b1];
         var blockchain2 := [genesisBlock,b1,b2];
@@ -327,13 +327,13 @@ module test_consistency {
     // all valid blockchain start with genesisBlock
     {
         var header := BlockHeader(1, 0, {}, 0, 0);
-        var genesisBlock := Block(header, "", []);
+        var genesisBlock := Block(header, 0, []);
         var c := Configuration([0,1,2,3], genesisBlock, 0);
         var env := Network([0,1,2], multiset{}, 0, multiset{});
 
-        var b1 := Block(BlockHeader(0,0,{0},0,0), "the first proposal", ["trans1s"]);
-        var b2 := Block(BlockHeader(1,1,{0},1,3), "the second proposal", ["trans2s"]);
-        var b3 := Block(BlockHeader(2,2,{0},2,5), "the third proposal", ["trans3s"]);
+        var b1 := Block(BlockHeader(0,0,{0},0,0), 1, ["trans1s"]);
+        var b2 := Block(BlockHeader(1,1,{0},1,3), 2, ["trans2s"]);
+        var b3 := Block(BlockHeader(2,2,{0},2,5), 3, ["trans3s"]);
         
         var blockchain1 := [genesisBlock,b1];
         var blockchain2 := [genesisBlock,b1,b2];
@@ -359,7 +359,7 @@ module test_consistency {
     function t1(i:nat): DSState
     {
         var h0 := BlockHeader(1, 0, {}, 0, 0);
-        var c := Configuration([0,1,2], Block(h0, "", []), 0);
+        var c := Configuration([0,1,2], Block(h0, 0, []), 0);
         var env := Network([0,1,2], multiset{}, 0, multiset{});
 
         var n0 := NodeState([], 0, 0, 0, c, {}, None, None, None, 0);
@@ -376,12 +376,12 @@ module test_consistency {
     function t2(i:nat): DSState
     {
         var header := BlockHeader(1, 0, {}, 0, 0);
-        var c := Configuration([1,2,3], Block(header, "", []), 0);
+        var c := Configuration([1,2,3], Block(header, 0, []), 0);
         var env := Network([0,1,2], multiset{}, 0, multiset{});
         var adv := Adversary({}, {});
 
-        var b1 := Block(header, "this is body", ["trans1"]);
-        var b2 := Block(header, "empty", ["trans2"]);
+        var b1 := Block(header, 5, ["trans1"]);
+        var b2 := Block(header, 6, ["trans2"]);
 
     
         var n0 := NodeState([b1, b2], 0, 0, 0, c, {}, None, None, None, 0);
@@ -397,12 +397,12 @@ module test_consistency {
     function t3(i:nat): DSState
     {
         var header := BlockHeader(1, 0, {}, 0, 0);
-        var c := Configuration([1], Block(header, "", []), 0);
+        var c := Configuration([1], Block(header, 0, []), 0);
         var env := Network([0,1,2], multiset{}, 0, multiset{});
         var adv := Adversary({}, {});
 
-        var b1 := Block(header, "this is body", ["trans1"]);
-        var b2 := Block(header, "empty", ["trans2"]);
+        var b1 := Block(header, 5, ["trans1"]);
+        var b2 := Block(header, 6, ["trans2"]);
 
     
         var n0 := NodeState([b1, b2], 0, 0, 0, c, {}, None, None, None, 0);

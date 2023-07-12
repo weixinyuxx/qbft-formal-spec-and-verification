@@ -117,7 +117,7 @@ module test_send_adv {
         var inQbftMessages:set<QbftMessage> := {};
 
         // make up a random new block with incorrect commit seals
-        var block := Block(BlockHeader(0,0,{0},0,0), "body", ["transaction"]);
+        var block := Block(BlockHeader(0,0,{0},0,0), 5, ["transaction"]);
         var message := QbftMessageWithRecipient(NewBlock(block),1);
         var outQbftMessages := {message};
 
@@ -138,7 +138,7 @@ module test_send_adv {
         var inQbftMessages:set<QbftMessage> := {RoundChange(roundChange, None, {})};
 
         // make up a round change message with correct commit seals by a functioning node for a block
-        var block := Block(BlockHeader(0,0,{},0,0), "body", ["transaction"]);
+        var block := Block(BlockHeader(0,0,{},0,0), 5, ["transaction"]);
         var commitedBlock := block.(header := block.header.(commitSeals := {signHash(hashBlockForCommitSeal(block), 1)}));
 
         var message := QbftMessageWithRecipient(RoundChange(roundChange, Optional(commitedBlock), {}), 1);
