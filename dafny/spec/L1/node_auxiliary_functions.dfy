@@ -553,7 +553,7 @@ module L1_AuxiliaryFunctionsAndLemmas
                                 replaceRoundInBlock(
                                     block,
                                     optionGet(rcm.unsignedPayload.preparedRound)
-                                );                        // should proposer also change?
+                                );
                         && optionGet(rcm.unsignedPayload.preparedValue) == digest(proposedBlockWithOldRound)
                         && (forall pm | pm in prepares :: 
                                             validSignedPrepareForHeightRoundAndDigest(

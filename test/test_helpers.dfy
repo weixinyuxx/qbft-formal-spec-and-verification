@@ -268,5 +268,22 @@ function StateGeneratorNoAdversary(blockchain0: Blockchain, blockchain1: Blockch
     var nodes := map[0 := n0, 1 := n1, 2 := n2, 3:= n3];
     BasicState().(nodes := nodes)
 }
+lemma test()
+        requires forall blockchain ::validators(blockchain) == [0,1,2,3]
+    {
+        var behavior := [s0(), s1(), s2(), s3(), s4()];
+        assert |behavior| == 5;
+        assert forall i | 0 <= i < |behavior| :: validDSState(behavior[i]);
+
+        assert forall i | 0 <= i < 4 :: DSNext(behavior[i],behavior[i+1]) by {
+            
+            assume DSNext(behavior[0], behavior[1]);
+            assume DSNext(behavior[1], behavior[2]);
+            assume DSNext(behavior[2], behavior[3]);
+            assume DSNext(behavior[3], behavior[4]);
+        }
+
+    }
 
 }
+
