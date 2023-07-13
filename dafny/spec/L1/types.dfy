@@ -14,7 +14,7 @@ module L1_SpecTypes
      ========================================================================*/
     type Address = int
 
-    type BlockBody = string
+    type BlockBody = int
 
     type Transaction = string
 
@@ -123,7 +123,7 @@ module L1_SpecTypes
     datatype QbftMessage =
         | Proposal(
             proposalPayload: SignedProposal,
-            proposedBlock:Block, 
+            proposedBlock:Block,
             proposalJustification: set<SignedRoundChange>,
             roundChangeJustification: set<SignedPrepare>
         )

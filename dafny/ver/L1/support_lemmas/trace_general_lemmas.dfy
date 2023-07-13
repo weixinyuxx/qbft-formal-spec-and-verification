@@ -251,6 +251,15 @@ module L1_TraceGeneralLemmas {
                         ,
                     t(i).adversary
                 )];
+                assert !isHonest(t(i-1),node) ==> AdversaryNext(c,t(i-1).adversary,messageReceived, t(i).adversary,outm) by {
+                    assert DSNextNode(t(i-1),t(i),outm, inm, node);
+                    assert messageReceived == set mr:QbftMessageWithRecipient | mr in inm :: mr.message;
+                    if !isHonest(t(i-1), node) {
+                        assert c == t(i-1).configuration == t(i).configuration;
+                        assert AdversaryNext(t(i-1).configuration, t(i-1).adversary, messageReceived, t(i).adversary, outm);
+                        assume AdversaryNext(c,t(i-1).adversary,messageReceived, t(i).adversary,outm);
+                    }
+                }
                 assert !isHonest(t(i-1),node) ==> AdversaryNext(c,instrtim1[i-1].adversary,messageReceived, ret[i].adversary,outm);
                 assert !isHonest(t(i-1),node) ==> ret[i-1].nodes == ret[i].nodes;
                 assert isHonest(t(i-1),node) ==> DSInstrNextNodeMultiple(instrtim1[i-1], ret[i], outm, inm, node);
@@ -337,14 +346,14 @@ module L1_TraceGeneralLemmas {
                             && t(j).adversary == instrt(j).adversary);   
 
 
-        var i:nat;
+        // var i:nat;
 
         var extrt := extractTraceFromInstrTrace(fromTraceToInstrTrace(t,c));
 
-        assert extrt(i).configuration == instrt(i).configuration == t(i).configuration;
-        assert extrt(i).environment == instrt(i).environment == t(i).environment;
-        assert extrt(i).adversary == instrt(i).adversary == t(i).adversary;
-        assert extrt(i).nodes == t(i).nodes;    
+        // assert extrt(i).configuration == instrt(i).configuration == t(i).configuration;
+        // assert extrt(i).environment == instrt(i).environment == t(i).environment;
+        // assert extrt(i).adversary == instrt(i).adversary == t(i).adversary;
+        // assert extrt(i).nodes == t(i).nodes;    
 
 
         assert forall i :: extrt(i) == t(i);

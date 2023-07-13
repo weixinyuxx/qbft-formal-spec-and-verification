@@ -40,7 +40,6 @@ module L1_InstrDSStateNetworkingCommonInvariants
             forall n | isInstrNodeHonest(s,n) :: p(s.nodes[n])
     }
 
-
     lemma lemmaIndInvInstrNodeStateLifterToInstrDSState(
         s:  InstrDSState, 
         s': InstrDSState
@@ -52,7 +51,13 @@ module L1_InstrDSStateNetworkingCommonInvariants
     {
         if s != s'
         {
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+
+            assert isNodeThatTakesStep(s, s', node);
 
             if isInstrNodeHonest(s,node)
             {

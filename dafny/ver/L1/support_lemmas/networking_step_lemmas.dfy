@@ -31,6 +31,7 @@ module L1_NetworkingStepLemmas
     import opened L1_InstrDSStateNetworkingCommonInvariants
     import opened L1_GeneralLemmas
     import opened L1_NetworkingInvariants
+    import opened L1_Adversary
 
     predicate messagesSentByAnHonestNodeExcludingSentToItselfDoNotChange(
         s:  InstrDSState, 
@@ -104,7 +105,8 @@ module L1_NetworkingStepLemmas
                     
                     && InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
                     && !isInstrNodeHonest(s, node);  
-
+        var messageReceived := set mr:QbftMessageWithRecipient | mr in messagesReceivedByTheNodes :: mr.message;
+        assert AdversaryNext(s.configuration,s.adversary,messageReceived,s'.adversary,messagesSentByTheNodes);
         assert forall n :: isInstrNodeHonest(s,n) ==> isInstrNodeHonest(s',n);
 
         forall n,m | isInstrNodeHonest(s,n)  && m in filterSignedPayloadsByAuthor(getSetOfSignedPayloads(fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes))),n)
@@ -112,18 +114,29 @@ module L1_NetworkingStepLemmas
         {
             if(m.SignedProposalPayload?)
             {
-                // assert m in filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)),n);
+                lemmaSignedProposal();
+                assert (
+                    || m.signedProposalPayload in signedProposalPayloads(s.adversary.messagesReceived)
+                    || !isHonestByConfig(s.configuration, s.adversary, recoverSignedProposalAuthor(m.signedProposalPayload))
+                );
+                assert isHonestByConfig(s.configuration, s.adversary, recoverSignedProposalAuthor(m.signedProposalPayload)) by {
+                    assert isInstrNodeHonest(s, n);
+                }
+                assert m in filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)),n);
             }
             else if(m.SignedPreparePayload?)
             {
-                // assert m in filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)),n);
+                lemmaSignedPrepare();
+                assert m in filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)),n);
             }
             else if(m.SignedCommitPayload?)
             {
-                // assert m in filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)),n);
+                lemmaSignedCommit();
+                assert m in filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)),n);
             }
             else if(m.SignedRoundChangePayload?)
             {
+                lemmaSignedRoundChange();
                 assert m in filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)),n);
             }            
             

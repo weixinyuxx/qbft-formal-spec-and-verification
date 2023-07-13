@@ -250,6 +250,7 @@ module L1_InstrDSStateInvariantsHeavy
         messagesReceivedByTheNodes: multiset<QbftMessageWithRecipient>,
         node: Address
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)
     requires !isInstrNodeHonest(s, node)
     requires InstrDSNextNodeSingle(s,s',messagesSentByTheNodes,messagesReceivedByTheNodes,node)
@@ -323,7 +324,7 @@ module L1_InstrDSStateInvariantsHeavy
                 assert m.commitPayload.unsignedPayload.commitSeal == cs;
                 assert
                         || (cs in getCommitSeals(s'.adversary.messagesReceived))
-                        || (forall b | digest(b) == m.commitPayload.unsignedPayload.digest :: 
+                        || (forall b :: 
                                 !(recoverSignedHashAuthor(hashBlockForCommitSeal(b),cs) in seqToSet(s.configuration.nodes) - s.adversary.byz)); 
                 assert s.nodes.Keys == seqToSet(s.configuration.nodes);
                 assert csAuthor in seqToSet(s.configuration.nodes) - s.adversary.byz;
@@ -333,7 +334,7 @@ module L1_InstrDSStateInvariantsHeavy
             {
                 assert cs in m.block.header.commitSeals;
                 assert  || (cs in getCommitSeals(s'.adversary.messagesReceived))
-                        || (recoverSignedHashAuthor(hashBlockForCommitSeal(m.block),cs) in s.adversary.byz);    
+                        || forall b :: !(recoverSignedHashAuthor(hashBlockForCommitSeal(b),cs) in seqToSet(s.configuration.nodes) - s.adversary.byz);    
 
                 assert (recoverSignedHashAuthor(hashBlockForCommitSeal(m.block),cs) !in s.adversary.byz);       
                 assert cs in getCommitSeals(s'.adversary.messagesReceived);

@@ -130,6 +130,7 @@ module L1_AuxiliaryFunctionsAndLemmas
     ensures && getNewBlock(nodeState,round).header.roundNumber == round
             && |validators(nodeState.blockchain + [getNewBlock(nodeState,round)])| > 0
             && getNewBlock(nodeState,round).header.height == |nodeState.blockchain|
+            && getNewBlock(nodeState,round).header.commitSeals == {}
 
     /** =======================================================================
      * GENERAL FUNCTIONS
