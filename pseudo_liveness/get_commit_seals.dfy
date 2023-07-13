@@ -47,7 +47,8 @@ module get_commit_seals {
         requires forall blockchain ::validators(blockchain) == [0,1,2,3]
         requires forall blockchain, block :: validateEthereumBlock(blockchain, block)
         requires forall block, ns, r | block == getNewBlock(ns, r) :: block.header.proposer == ns.id
-        requires forall ns1:NodeState, ns2:NodeState, r:nat | ns1.blockchain == ns2.blockchain && ns1.id == ns2.id :: getNewBlock(ns1, r) == getNewBlock(ns2, r)
+        requires getNewBlock(finalState3(), 0) == getNewBlock(intermediateState3_1(), 0)
+        // requires forall ns1:NodeState, ns2:NodeState, r:nat | ns1.blockchain == ns2.blockchain && ns1.id == ns2.id :: getNewBlock(ns1, r) == getNewBlock(ns2, r)
         ensures DSNext(state2, state3)
     {
         assert validNewBlockMessage([genesisBlock()], newBlock(1).message) by {
@@ -164,7 +165,8 @@ module get_commit_seals {
         requires (forall i | 0 <= i < |behavior| :: validDSState(behavior[i]))
         requires forall blockchain, block :: validateEthereumBlock(blockchain, block)
         requires forall block, ns, r | block == getNewBlock(ns, r) :: block.header.proposer == ns.id
-        requires forall ns1:NodeState, ns2:NodeState, r:nat | ns1.blockchain == ns2.blockchain && ns1.id == ns2.id :: getNewBlock(ns1, r) == getNewBlock(ns2, r)
+        requires getNewBlock(finalState3(), 0) == getNewBlock(intermediateState3_1(), 0)
+        // requires forall ns1:NodeState, ns2:NodeState, r:nat | ns1.blockchain == ns2.blockchain && ns1.id == ns2.id :: getNewBlock(ns1, r) == getNewBlock(ns2, r)
         ensures (forall i | 0 <= i < |behavior|-1 :: DSNext(behavior[i],behavior[i+1]))
     {
         /// step 1: adversary sends out Proposal messages to itself ///
@@ -184,7 +186,8 @@ module get_commit_seals {
             requires forall blockchain ::validators(blockchain) == [0,1,2,3]
             requires forall blockchain, block :: validateEthereumBlock(blockchain, block)
             requires forall block, ns, r | block == getNewBlock(ns, r) :: block.header.proposer == ns.id
-            requires forall ns1:NodeState, ns2:NodeState, r:nat | ns1.blockchain == ns2.blockchain && ns1.id == ns2.id :: getNewBlock(ns1, r) == getNewBlock(ns2, r)
+            requires getNewBlock(finalState3(), 0) == getNewBlock(intermediateState3_1(), 0)
+            // requires forall ns1:NodeState, ns2:NodeState, r:nat | ns1.blockchain == ns2.blockchain && ns1.id == ns2.id :: getNewBlock(ns1, r) == getNewBlock(ns2, r)
             
             ensures |behavior| > 0;
             ensures DSInit(behavior[0],c);
