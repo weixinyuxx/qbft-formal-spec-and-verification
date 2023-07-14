@@ -228,6 +228,7 @@ module L1_TraceGeneralLemmas {
                 ret               
             else
                 var inm, outm, node :| DSNextNode(t(i-1),t(i),outm, inm, node);
+                assert !isHonest(t(i-1), node) ==> t(i-1).nodes == t(i).nodes;
 
                 var messageReceived := set mr:QbftMessageWithRecipient | mr in inm :: mr.message;            
                 var rr :=
@@ -251,16 +252,20 @@ module L1_TraceGeneralLemmas {
                         ,
                     t(i).adversary
                 )];
-                assert !isHonest(t(i-1),node) ==> AdversaryNext(c,t(i-1).adversary,messageReceived, t(i).adversary,outm) by {
-                    assert DSNextNode(t(i-1),t(i),outm, inm, node);
-                    assert messageReceived == set mr:QbftMessageWithRecipient | mr in inm :: mr.message;
-                    if !isHonest(t(i-1), node) {
-                        assert c == t(i-1).configuration == t(i).configuration;
-                        assert AdversaryNext(t(i-1).configuration, t(i-1).adversary, messageReceived, t(i).adversary, outm);
-                        assume AdversaryNext(c,t(i-1).adversary,messageReceived, t(i).adversary,outm);
-                    }
-                }
-                assert !isHonest(t(i-1),node) ==> AdversaryNext(c,instrtim1[i-1].adversary,messageReceived, ret[i].adversary,outm);
+                // assert !isHonest(t(i-1), node) ==> t(i-1).nodes == t(i).nodes by {
+                //     assert DSNextNode(t(i-1),t(i),outm, inm, node);
+                // }
+                // assert !isHonest(t(i-1),node) ==> AdversaryNext(c,t(i-1).adversary,messageReceived, t(i).adversary,outm) by {
+                //     assert DSNextNode(t(i-1),t(i),outm, inm, node);
+                //     assert messageReceived == set mr:QbftMessageWithRecipient | mr in inm :: mr.message;
+                //     if !isHonest(t(i-1), node) {
+                //         assert t(i-1).nodes == t(i).nodes;
+                //         // assert c == t(i-1).configuration == t(i).configuration;
+                //         // assert AdversaryNext(t(i-1).configuration, t(i-1).adversary, messageReceived, t(i).adversary, outm);
+                //         // assume AdversaryNext(c,t(i-1).adversary,messageReceived, t(i).adversary,outm);
+                //     }
+                // }
+                // assert !isHonest(t(i-1),node) ==> AdversaryNext(c,instrtim1[i-1].adversary,messageReceived, ret[i].adversary,outm);
                 assert !isHonest(t(i-1),node) ==> ret[i-1].nodes == ret[i].nodes;
                 assert isHonest(t(i-1),node) ==> DSInstrNextNodeMultiple(instrtim1[i-1], ret[i], outm, inm, node);
                 assert DSInstrNextNodeMultiple(instrtim1[i-1], ret[i], outm, inm, node);
