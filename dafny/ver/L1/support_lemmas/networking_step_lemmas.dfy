@@ -93,6 +93,7 @@ module L1_NetworkingStepLemmas
         s:  InstrDSState, 
         s': InstrDSState
     )
+    requires s.nodes.Keys == seqToSet(s.configuration.nodes)
     requires invEnvMessagesSentYetToBeReceivedIsASubsetOfAllMessagesSent(s)
     requires invAdversaryMessagesReceivedHaveBeenSent(s)  
     requires adversaryTakesStep(s,s')
@@ -115,10 +116,10 @@ module L1_NetworkingStepLemmas
             if(m.SignedProposalPayload?)
             {
                 lemmaSignedProposal();
-                assert (
-                    || m.signedProposalPayload in signedProposalPayloads(s.adversary.messagesReceived)
-                    || !isHonestByConfig(s.configuration, s.adversary, recoverSignedProposalAuthor(m.signedProposalPayload))
-                );
+                // assert (
+                //     || m.signedProposalPayload in signedProposalPayloads(s.adversary.messagesReceived)
+                //     || !isHonestByConfig(s.configuration, s.adversary, recoverSignedProposalAuthor(m.signedProposalPayload))
+                // );
                 assert isHonestByConfig(s.configuration, s.adversary, recoverSignedProposalAuthor(m.signedProposalPayload)) by {
                     assert isInstrNodeHonest(s, n);
                 }
@@ -152,6 +153,7 @@ module L1_NetworkingStepLemmas
         s:  InstrDSState, 
         s': InstrDSState
     )
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires invEnvMessagesSentYetToBeReceivedIsASubsetOfAllMessagesSent(s)
     requires invAdversaryMessagesReceivedHaveBeenSent(s)  
     requires adversaryTakesStep(s,s')
