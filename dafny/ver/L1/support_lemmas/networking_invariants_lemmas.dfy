@@ -76,7 +76,14 @@ module L1_NetworkingInvariantsLemmas
     {  
         if s != s'
         {
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| && validInstrDSState(s)
+                        && InstrDSNextSingle(s, s')
+                        &&
+                            (exists messagesSentByTheNodes,
+                                    messagesReceivedByTheNodes
+                                    ::
+                                    InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node));
+            assert isNodeThatTakesStep(s, s', node);
 
             if isInstrNodeHonest(s,node)
             {
@@ -115,6 +122,7 @@ module L1_NetworkingInvariantsLemmas
         s': InstrDSState,
         n: Address
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)   
     requires isInstrNodeHonest(s,n)
     requires invSetOfMessagesSignedByANodeInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkExcludingSentToItself(s,n)
@@ -142,6 +150,7 @@ module L1_NetworkingInvariantsLemmas
         s': InstrDSState,
         n: Address
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)   
     requires isInstrNodeHonest(s,n)
     requires invSetOfMessagesSignedByANodeInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkIncludingSentToItself(s,n)
@@ -208,6 +217,7 @@ module L1_NetworkingInvariantsLemmas
         messagesReceivedByTheNodes: multiset<QbftMessageWithRecipient>,
         node: Address
     )  
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s) 
     requires isInstrNodeHonest(s,node)
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
@@ -338,6 +348,7 @@ module L1_NetworkingInvariantsLemmas
         s : InstrDSState,
         s': InstrDSState
     )  
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s) 
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires invAllSignedPayloadsReceivedByAnyHonestNodeAndSignedByAnHonestNodeHaveBeenSentByTheHonestNode(s);
@@ -354,7 +365,12 @@ module L1_NetworkingInvariantsLemmas
 
         if s != s'
         {
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             if isInstrNodeHonest(s,node)
             {
@@ -406,6 +422,7 @@ module L1_NetworkingInvariantsLemmas
         messagesReceivedByTheNodes: multiset<QbftMessageWithRecipient>,
         node: Address
     )  
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s) 
     requires isInstrNodeHonest(s,node)
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
@@ -494,6 +511,7 @@ module L1_NetworkingInvariantsLemmas
         s : InstrDSState,
         s': InstrDSState
     )  
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s) 
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires invAllSignedPayloadsReceivedByAnyHonestNodeAndSignedByAnHonestNodeHaveBeenSentByTheHonestNode(s);
@@ -511,7 +529,12 @@ module L1_NetworkingInvariantsLemmas
 
         if s != s'
         {
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             if isInstrNodeHonest(s,node)
             {
@@ -566,6 +589,7 @@ module L1_NetworkingInvariantsLemmas
         messagesReceivedByTheNodes: multiset<QbftMessageWithRecipient>,
         node: Address
     )  
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)   
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires invSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkExcludingSentToItself(s)
@@ -696,6 +720,7 @@ module L1_NetworkingInvariantsLemmas
         messagesReceivedByTheNodes: multiset<QbftMessageWithRecipient>,
         node: Address
     )  
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s) 
     requires isInstrNodeHonest(s,node)
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
@@ -833,6 +858,7 @@ module L1_NetworkingInvariantsLemmas
         s:InstrDSState, 
         s': InstrDSState
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)   
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires invAllSignedPayloadsReceivedByAnyHonestNodeAndSignedByAnHonestNodeHaveBeenSentByTheHonestNode(s)
@@ -851,8 +877,12 @@ module L1_NetworkingInvariantsLemmas
 
         if s != s'
         {
-            
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             // lemmaNodesThatTakesAStepDoesNotChangeMessageSentByOtherNodesThatAreHonest2(s,s',node);
             lemmaGetSetOfSignedPayloads();
@@ -951,6 +981,7 @@ module L1_NetworkingInvariantsLemmas
         A: set<set<SignedPayload>>,
         B: set<set<SignedPayload>>
     )
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires node in s'.nodes && n in s'.nodes 
     requires s'.nodes.Keys == s.nodes.Keys
     requires forall n' | isInstrNodeHonest(s', n')  && n' != node :: s.nodes[n'].messagesSentToItself == s'.nodes[n'].messagesSentToItself; 
@@ -978,6 +1009,7 @@ module L1_NetworkingInvariantsLemmas
         n: Address,
         node: Address
     )   
+    requires seqToSet(s'.configuration.nodes) == s'.nodes.Keys
     requires isInstrNodeHonest(s', node)
     requires isInstrNodeHonest(s', n)
     ensures  setUnion(set n' | n' in s'.nodes && isInstrNodeHonest(s', n') :: filterSignedPayloadsByAuthor(getSetOfSignedPayloads(s'.nodes[n'].messagesSentToItself), n))   
@@ -1021,6 +1053,7 @@ module L1_NetworkingInvariantsLemmas
         n: Address,
         node: Address
     )   
+    requires seqToSet(s'.configuration.nodes) == s'.nodes.Keys
     requires isInstrNodeHonest(s', node)
     requires isInstrNodeHonest(s', n)
     ensures  setUnion(
@@ -1039,6 +1072,7 @@ module L1_NetworkingInvariantsLemmas
         n: Address,
         node: Address
     )   
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires s.nodes.Keys == s'.nodes.Keys;
     requires forall n' :: isInstrNodeHonest(s, n') == isInstrNodeHonest(s', n');
     ensures  (set n' | n' in s'.nodes && n' != node && isInstrNodeHonest(s', n') :: filterSignedPayloadsByAuthor(getSetOfSignedPayloads(s.nodes[n'].messagesSentToItself), n)) ==
@@ -1054,6 +1088,7 @@ module L1_NetworkingInvariantsLemmas
         node: Address,
         n: Address        
     )
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)   
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires invAllSignedPayloadsReceivedByAnyHonestNodeAndSignedByAnHonestNodeHaveBeenSentByTheHonestNode(s)
@@ -1382,6 +1417,7 @@ module L1_NetworkingInvariantsLemmas
         s:InstrDSState, 
         s': InstrDSState
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)   
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires invAllSignedPayloadsReceivedByAnyHonestNodeAndSignedByAnHonestNodeHaveBeenSentByTheHonestNode(s)
@@ -1403,7 +1439,12 @@ module L1_NetworkingInvariantsLemmas
         if s != s'
         {
             
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             lemmaGetSetOfSignedPayloads();
             lemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkExcludingSentToItself(s, s');
@@ -1508,6 +1549,7 @@ module L1_NetworkingInvariantsLemmas
         n2: Address,
         m: SignedPayload
     )
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires invMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
     requires && isInstrNodeHonest(s,n1) 
                 && isInstrNodeHonest(s,n2) 
@@ -1520,6 +1562,7 @@ module L1_NetworkingInvariantsLemmas
         s:  InstrDSState, 
         s': InstrDSState
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s) 
     requires indInvLemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
     requires invMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
