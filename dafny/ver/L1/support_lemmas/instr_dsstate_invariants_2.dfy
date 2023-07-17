@@ -254,6 +254,7 @@ module L1_InstrDSStateInvariantsNew
         bm: QbftMessage,
         blockchain: Blockchain  
     ) returns (pm': QbftMessage, hSender1: Address, b1': Block)
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSStateEx(s)  
     requires indInvForConsistency(s) 
     requires invBlockchainConsistency(s)
