@@ -149,6 +149,7 @@ module L1_InstrDSStateInvariantsHeavy
         s:InstrDSState, 
         s': InstrDSState
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSStateEx(s)   
     requires liftIndInvInstrNodeStateToInstrDSState(indInvInstrNodeState)(s)
     requires indInvLemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
@@ -433,6 +434,7 @@ module L1_InstrDSStateInvariantsHeavy
         s:InstrDSState, 
         s': InstrDSState
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSStateEx(s)   
     requires liftIndInvInstrNodeStateToInstrDSState(indInvInstrNodeState)(s)
     requires indInvLemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
@@ -466,7 +468,12 @@ module L1_InstrDSStateInvariantsHeavy
 
         if s != s'
         {
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (exists messagesSentByTheNodes,
+                    messagesReceivedByTheNodes
+                    ::
+                    InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node));
+            
+            assert isNodeThatTakesStep(s, s', node);
 
             var messagesSentByTheNodes, messagesReceivedByTheNodes :|
                     InstrDSNextNodeSingle(s,s',messagesSentByTheNodes,messagesReceivedByTheNodes,node);  
@@ -3359,6 +3366,7 @@ module L1_InstrDSStateInvariantsHeavy
         s:InstrDSState, 
         s': InstrDSState
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)   
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires invAllSignedPayloadsReceivedByAnyHonestNodeAndSignedByAnHonestNodeHaveBeenSentByTheHonestNode(s)

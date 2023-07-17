@@ -146,18 +146,32 @@ module test
             else
             {
                 lemmaAdversaryNextDoesNotChangeMessagesSentByHonestNodesExcludingSentToItself(s, s');
-                assert NetworkNext(s.environment, s'.environment, messagesSentByTheNodes, messagesReceivedByTheNodes);
-                var messageReceived := set mr:QbftMessageWithRecipient | mr in messagesReceivedByTheNodes :: mr.message;
-                assert AdversaryNext(s.configuration, s.adversary, messageReceived, s'.adversary, messagesSentByTheNodes);
-
-                assert forall n | isInstrNodeHonest(s,n) && isInstrNodeHonest(s',n) :: filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)), n)
-                                                == filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s'.environment)), n);
-                assert invSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkExcludingSentToItself(s');
+                assert invSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkExcludingSentToItself(s') by {
+                    lemmaAdversaryNextDoesNotChangeMessagesSentByHonestNodesExcludingSentToItself(s, s');
+                    assert invSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkExcludingSentToItself(s);
+                    forall n | isInstrNodeHonest(s, n) 
+                        ensures  filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s'.environment)), n) ==
+                            filterSignedPayloadsByAuthor(getSetOfSignedPayloads(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.nodes[n].messagesSent)), n)
+                    {
+                        assert 
+                        (
+                            && filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)), n) ==
+                                filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s'.environment)),n)
+                            && filterSignedPayloadsByAuthor(getSetOfSignedPayloads(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s.nodes[n].messagesSent)),n) ==
+                                filterSignedPayloadsByAuthor(getSetOfSignedPayloads(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.nodes[n].messagesSent)),n) 
+                            && filterSignedPayloadsByAuthor(getSetOfSignedPayloads(allMessagesSentWithoutRecipient(s.environment)), n) ==
+                                filterSignedPayloadsByAuthor(getSetOfSignedPayloads(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s.nodes[n].messagesSent)), n)
+                        );
+                    }
+                }
             }         
 
         }
         else
         {
+            assert invAdversaryMessagesReceivedHaveBeenSent(s);
+            assert invNodesIdMatchesMapKey(s);
+            assert invEnvMessagesSentYetToBeReceivedIsASubsetOfAllMessagesSent(s);
             assert invSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkExcludingSentToItself(s');
         }
     }
