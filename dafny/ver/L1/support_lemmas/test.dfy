@@ -93,8 +93,8 @@ module L1_InstrDSStateInvariantsHeavyb
             if !isInstrNodeHonest(s, node)
             {
                 lemmaAdversaryNextDoesNotChangeMessagesSentByHonestNodesExcludingSentToItself(s,s');
-                assert s.adversary.messagesReceived <= allMessagesSentWithoutRecipient(s.environment);
-                assert s'.adversary.messagesReceived <= allMessagesSentWithoutRecipient(s'.environment);
+                // assert s.adversary.messagesReceived <= allMessagesSentWithoutRecipient(s.environment);
+                // assert s'.adversary.messagesReceived <= allMessagesSentWithoutRecipient(s'.environment);
 
                 forall b, cs, csAuthor |
                     && cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s'))
@@ -111,17 +111,23 @@ module L1_InstrDSStateInvariantsHeavyb
                     assert || cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s))
                            || cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)));
 
-                    if cs !in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s))
+                    if !(cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s)))
                     {
                         
-                        assert cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)));      
-                        // lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSignerHelper1(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node);
-                        // assert cs in getCommitSeals(s'.adversary.messagesReceived);          
-                        // assert s'.adversary.messagesReceived <= fromMultisetQbftMessagesWithRecipientToSetOfMessages(s.environment.allMessagesSent);
-                        // assert cs in  getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s.environment.allMessagesSent));
-                        // assert fromMultisetQbftMessagesWithRecipientToSetOfMessages(s.environment.allMessagesSent) <= allMesssagesSentIncSentToItselfWithoutRecipient(s);
-                        // assert cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s));
-                        // assert false;
+                        assert cs in getCommitSeals(s'.adversary.messagesReceived) by {
+                            assert cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)));      
+                            lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSignerHelper1(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node);
+                        }        
+                        assert cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent)) by {
+                            assert invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s');
+                            assert getCommitSeals(s'.adversary.messagesReceived)
+                                <=
+                                getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent));
+                            assert cs in getCommitSeals(s'.adversary.messagesReceived);
+                        }
+                        assert fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent) <= allMesssagesSentIncSentToItselfWithoutRecipient(s');
+                        assert cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s'));
+                        assert false;
 
                         // assert   pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s, b,csAuthor); 
                         // var   cm:QbftMessage, b', p :|  
@@ -136,12 +142,12 @@ module L1_InstrDSStateInvariantsHeavyb
                         //         && cm.commitPayload.unsignedPayload.digest == digest(b');                        
                         // assume   pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s', b,csAuthor);  
                     }
-                    else {
-                        assume   pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s', b,csAuthor);  
-                    } 
+                    // else {
+                    //     assume   pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s', b,csAuthor);  
+                    // } 
                 }
 
-                assert invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s');
+                // assert invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s');
             }
         }
   
