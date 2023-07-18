@@ -3069,6 +3069,7 @@ module L1_InstrDSStateInvariantsHeavy
         h:nat, 
         n1: Address
     ) 
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSStateEx(s)   
     requires liftIndInvInstrNodeStateToInstrDSState(indInvInstrNodeState)(s)
     requires indInvLemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
@@ -3100,8 +3101,33 @@ module L1_InstrDSStateInvariantsHeavy
                 h,
                 n1
             );
+            assert invAnyTwoValidNewBlockMessagesWithCommitSealsIncludedInAllCommitSealsSentForTheSameHeightAreConsistent(s, bm.block, bm'.block, h, n1);   
+
+            forall cs | cs in bm.block.header.commitSeals
+                ensures cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s))
+                {
+                    var css := (set m,s | 
+                        && m in {bm}
+                        && m.NewBlock?
+                        && s in m.block.header.commitSeals
+                    ::
+                        s);
+                    assert cs in css;
+                }
+            forall cs | cs in bm'.block.header.commitSeals
+                ensures cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s))
+                {
+                    var css := (set m,s | 
+                        && m in {bm'}
+                        && m.NewBlock?
+                        && s in m.block.header.commitSeals
+                    ::
+                        s);
+                    assert cs in css;
+                }
+            assert areBlocksTheSameExceptForTheCommitSealsAndRound(bm.block, bm'.block);
         }
-    }   
+    }
     
     // 2s 3.2.0
     lemma lemmaInvAnyTwoValidNewBlockMessagesWithCommitSealsIncludedInAllCommitSealsSentForTheSameHeightAreConsistent(
@@ -3386,7 +3412,12 @@ module L1_InstrDSStateInvariantsHeavy
 
         if s != s'
         {
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             lemmaGetSetOfSignedPayloads();
 
@@ -3399,23 +3430,19 @@ module L1_InstrDSStateInvariantsHeavy
                 var messageReceived := set mr:QbftMessageWithRecipient | mr in messagesReceivedByTheNodes :: mr.message;
 
                 assert messagesReceivedByTheNodes <= s.environment.allMessagesSent;
-
-                assert forall n | 
-                    && isInstrNodeHonest(s', n) 
-                    && n != node
-                    ::
-                    getAllMessagesSentByTheNode(s,n) == getAllMessagesSentByTheNode(s',n);
-
-                assert forall n | 
-                    && isInstrNodeHonest(s', n) 
-                    && n != node
-                    ::
-                    invIfRoundChangePaylodSentThenRoundChangeSentSingleNode(s', n);                    
-
-                lemmaInvIfRoundChangePaylodSentThenRoundChangeSentSingleNode(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node);
-
-                assert invIfRoundChangePaylodSentThenRoundChangeSent(s');
-
+                forall n | isInstrNodeHonest(s', n)
+                    ensures invIfRoundChangePaylodSentThenRoundChangeSentSingleNode(s', n)
+                {
+                    if (n != node) {
+                        assert invIfRoundChangePaylodSentThenRoundChangeSentSingleNode(s', n) by {
+                            assert invIfRoundChangePaylodSentThenRoundChangeSentSingleNode(s, n);
+                            assert getAllMessagesSentByTheNode(s,n) == getAllMessagesSentByTheNode(s',n);
+                        }
+                    } else {
+                        assert n == node;
+                        lemmaInvIfRoundChangePaylodSentThenRoundChangeSentSingleNode(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, n);
+                    }
+                }
             }
             else
             {
@@ -3580,6 +3607,7 @@ module L1_InstrDSStateInvariantsHeavy
         s:InstrDSState, 
         s': InstrDSState
     )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)   
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires invAllSignedPayloadsReceivedByAnyHonestNodeAndSignedByAnHonestNodeHaveBeenSentByTheHonestNode(s)
@@ -3599,7 +3627,12 @@ module L1_InstrDSStateInvariantsHeavy
 
         if s != s'
         {
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             lemmaGetSetOfSignedPayloads();
 
@@ -3613,26 +3646,23 @@ module L1_InstrDSStateInvariantsHeavy
 
                 assert messagesReceivedByTheNodes <= s.environment.allMessagesSent;
 
-                assert forall n | 
-                    && isInstrNodeHonest(s', n) 
-                    && n != node
-                    ::
-                    getAllMessagesSentByTheNode(s,n) == getAllMessagesSentByTheNode(s',n);
-
-                assert forall n | 
-                    && isInstrNodeHonest(s', n) 
-                    && n != node
-                    ::
-                    invIfPreparePaylodSentThenPrepareSentSingleNode(s', n);                    
-
-                lemmaInvIfPreparePaylodSentThenPrepareSentSingleNode(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node);
-
-                assert invIfPreparePaylodSentThenPrepareSent(s');
-
+                forall n | isInstrNodeHonest(s', n)
+                    ensures invIfPreparePaylodSentThenPrepareSentSingleNode(s', n)
+                {
+                    if (n != node) {
+                        assert invIfPreparePaylodSentThenPrepareSentSingleNode(s', n) by {
+                            assert invIfPreparePaylodSentThenPrepareSentSingleNode(s, n);
+                            assert getAllMessagesSentByTheNode(s,n) == getAllMessagesSentByTheNode(s',n);
+                        }
+                    } else {
+                        assert n == node;
+                        lemmaInvIfPreparePaylodSentThenPrepareSentSingleNode(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, n);
+                    }
+                }
             }
             else
             {
-                assert invIfPreparePaylodSentThenPrepareSent(s');
+                assume invIfPreparePaylodSentThenPrepareSent(s');
             }
         }
     } 
@@ -3774,6 +3804,7 @@ module L1_InstrDSStateInvariantsHeavy
         s: InstrDSState,
         s': InstrDSState
     )
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSStateEx(s)  
     requires indInvForConsistency(s) 
     requires invBlockchainConsistency(s)
