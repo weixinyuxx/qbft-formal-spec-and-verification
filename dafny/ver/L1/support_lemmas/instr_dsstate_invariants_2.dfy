@@ -278,7 +278,12 @@ module L1_InstrDSStateInvariantsNew
             lemmaIndInvForConsistency(s, s');
             lemmaDigest();
 
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             var cm1: QbftMessage, p1: QbftMessage;
             cm1, b1', p1, hSender1 := lemmaInvIfValidNewBlockMessageThenThereExistsHonestBlockchainForThatHeightHelper2(s, s', bm, blockchain);  
@@ -360,7 +365,6 @@ module L1_InstrDSStateInvariantsNew
                                 &&  areBlocksTheSameExceptForTheCommitSeals(b1',bm.block);                           
                         }
                 }
-
             }
             else
             {
@@ -372,7 +376,7 @@ module L1_InstrDSStateInvariantsNew
                     &&  puPayload.round == cuPayload.round
                     &&  digest(pm'.proposedBlock) == cuPayload.digest
                     &&  signHash(hashBlockForCommitSeal(pm'.proposedBlock), s.nodes[hSender1].nodeState.id) == cuPayload.commitSeal
-                    &&  areBlocksTheSameExceptForTheCommitSeals(b1',bm.block);     
+                    &&  areBlocksTheSameExceptForTheCommitSeals(b1',bm.block);
             }                           
     }
 
@@ -584,7 +588,12 @@ module L1_InstrDSStateInvariantsNew
             lemmaIndInvForConsistency(s, s');
             lemmaDigest();
 
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             var cm1: QbftMessage, p1: QbftMessage;
             cm1, b1', p1, hSender1 := lemmaInvTheProposerOfAnyValidBlockInAnHonestBlockchailnIsInTheSetOfValidatorsHelper2(s, s', bm, n, blockchain);  
@@ -876,7 +885,7 @@ module L1_InstrDSStateInvariantsNew
             && |s.nodes[n'].nodeState.blockchain| >= |s'.nodes[n].nodeState.blockchain|;
 
 
-        // // assert s.nodes[n'].nodeState.blockchain[..|s'.nodes[n].nodeState.blockchain|] == s'.nodes[n].nodeState.blockchain;
+        // // // assert s.nodes[n'].nodeState.blockchain[..|s'.nodes[n].nodeState.blockchain|] == s'.nodes[n].nodeState.blockchain;
 
 
         var i := |s'.nodes[n].nodeState.blockchain|-1;
@@ -899,8 +908,18 @@ module L1_InstrDSStateInvariantsNew
 
         assert bm' in s.nodes[n'].nodeState.messagesReceived;
         assert bm' in allMesssagesSentIncSentToItselfWithoutRecipient(s);    
+        var css := (set m,s | 
+                && m in {bm'}
+                && m.NewBlock?
+                && s in m.block.header.commitSeals
+            ::
+                s);
+        forall cs | cs in bm'.block.header.commitSeals
+            ensures cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s))
+            {
+                assert cs in css;
+            } 
         assert bm'.block.header.commitSeals <= getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s));
- 
    
     }
 
@@ -918,7 +937,7 @@ module L1_InstrDSStateInvariantsNew
     requires invTheProposerOfAnyValidBlockInAnHonestBlockchainIsInTheSetOfValidators(s)
     requires invBlockchainConsistency(s)
     requires InstrDSNextSingle(s, s')   
-    requires  InstrDSNextNodeSingle(s,s',messagesSentByTheNodes,messagesReceivedByTheNodes,n);    
+    requires InstrDSNextNodeSingle(s,s',messagesSentByTheNodes,messagesReceivedByTheNodes,n);    
     requires isInstrNodeHonest(s, n)
     requires invMessagesReceivedByHonestNodesAreInAllMesssagesSentIncSentToItselfWithoutRecipient(s)
     requires 
@@ -940,18 +959,25 @@ module L1_InstrDSStateInvariantsNew
 
         var i := |s'.nodes[n].nodeState.blockchain|-1;
         b:= s'.nodes[n].nodeState.blockchain[i];
-        assert s'.nodes[n].nodeState.blockchain == s.nodes[n].nodeState.blockchain + [b];
-        assert sForSubsteps.nodes[n].nodeState.blockchain == s'.nodes[n].nodeState.blockchain[..i];
 
         var bm'' :|
             bm'' in sForSubsteps.nodes[n].nodeState.messagesReceived && 
             validNewBlockMessage(sForSubsteps.nodes[n].nodeState.blockchain,bm'')
             && bm''.block == b; 
 
-        assert bm'' in allMesssagesSentIncSentToItselfWithoutRecipient(s);  
-        assert bm''.block.header.commitSeals <= getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s));    
- 
-    }  
+        assert bm'' in allMesssagesSentIncSentToItselfWithoutRecipient(s); 
+        var css := (set m,s | 
+                && m in {bm''}
+                && m.NewBlock?
+                && s in m.block.header.commitSeals
+            ::
+                s);
+        forall cs | cs in bm''.block.header.commitSeals
+            ensures cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s))
+            {
+                assert cs in css;
+            } 
+    }
 
     // 2s 3.2.0
     lemma 
@@ -1668,7 +1694,12 @@ module L1_InstrDSStateInvariantsNew
 
         if s != s'
         {
-            var node :| isNodeThatTakesStep(s, s', node);
+            var node :| (
+                    && validInstrDSState(s)
+                    && InstrDSNextSingle(s, s')
+                    && exists messagesSentByTheNodes, messagesReceivedByTheNodes :: InstrDSNextNodeSingle(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node)
+                );
+            assert isNodeThatTakesStep(s, s', node);
 
             var messagesSentByTheNodes, messagesReceivedByTheNodes :|
                     InstrDSNextNodeSingle(s,s',messagesSentByTheNodes,messagesReceivedByTheNodes,node);  
