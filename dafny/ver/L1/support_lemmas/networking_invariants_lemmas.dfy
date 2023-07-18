@@ -1431,7 +1431,7 @@ module L1_NetworkingInvariantsLemmas
     }
 
 
-    // 193s Fixed Inconclusive
+     // 193s Fixed Inconclusive
     lemma lemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkIncludingSentToItself(
         s:InstrDSState, 
         s': InstrDSState
@@ -1457,7 +1457,6 @@ module L1_NetworkingInvariantsLemmas
 
         if s != s'
         {
-            
             var node :| (
                     && validInstrDSState(s)
                     && InstrDSNextSingle(s, s')
@@ -1548,16 +1547,19 @@ module L1_NetworkingInvariantsLemmas
             }
             else
             {
-                lemmaAdversaryNextDoesNotChangeMessagesSentByHonestNodesIncludingSentToItself(s, s');
-                assert messagesSentByHonestNodesIncludingSentToItselfDoNotChange(s, s');
-                assert indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s');
+                forall n | isInstrNodeHonest(s', n) 
+                        ensures  invSetOfMessagesSignedByANodeInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkIncludingSentToItself(s',n)
+                    {
+                        lemmaAdversaryNextDoesNotChangeMessagesSentByHonestNodesIncludingSentToItself(s, s');
+                        assert messagesSentByAnHonestNodeIncludingSentToItselfDoNotChange(s, s', n)
+                            && invSetOfMessagesSignedByANodeInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkIncludingSentToItself(s,n);
+                    }
                 assert invSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkIncludingSentToItself(s');
             }         
 
         }
         else
         {
-            assert indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s');
             assert invSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetworkIncludingSentToItself(s');
         }
     }    
