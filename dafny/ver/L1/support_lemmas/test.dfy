@@ -118,15 +118,17 @@ module L1_InstrDSStateInvariantsHeavyb
                             assert cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)));      
                             lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSignerHelper1(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node);
                         }        
-                        assert cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent)) by {
+                        
+                        assert cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s')) by {
+                            assert cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent)) by {
                             assert invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s');
                             assert getCommitSeals(s'.adversary.messagesReceived)
                                 <=
                                 getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent));
                             assert cs in getCommitSeals(s'.adversary.messagesReceived);
+                            }
+                            assert fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent) <= allMesssagesSentIncSentToItselfWithoutRecipient(s');
                         }
-                        assert fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent) <= allMesssagesSentIncSentToItselfWithoutRecipient(s');
-                        assert cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s'));
                         assert false;
 
                         // assert   pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s, b,csAuthor); 
