@@ -3721,6 +3721,7 @@ module L1_InstrDSStateInvariantsHeavy
         s:  InstrDSState, 
         s': InstrDSState
     )
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
     requires validInstrDSState(s)
     requires indInvLemmaInvSetOfMessagesSentAndSignedByHonestNodesInItsSetOfMessagesSentEqualTheSetOfMessagesSignedByTheNodeInTheAllMessagesSentInNetwork(s)
     requires indInvLemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
