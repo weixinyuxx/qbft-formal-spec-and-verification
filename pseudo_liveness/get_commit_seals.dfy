@@ -181,14 +181,14 @@ module get_commit_seals {
     }
 
     lemma PseudoLiveness(c:Configuration) returns (behavior: seq<DSState>)
-            requires IsValidConfiguration(c);
             requires c == Configuration([0,1,2,3], genesisBlock(), 1)
             requires forall blockchain ::validators(blockchain) == [0,1,2,3]
             requires forall blockchain, block :: validateEthereumBlock(blockchain, block)
             requires forall block, ns, r | block == getNewBlock(ns, r) :: block.header.proposer == ns.id
-            requires getNewBlock(finalState3(), 0) == getNewBlock(intermediateState3_1(), 0)
-            // requires forall ns1:NodeState, ns2:NodeState, r:nat | ns1.blockchain == ns2.blockchain && ns1.id == ns2.id :: getNewBlock(ns1, r) == getNewBlock(ns2, r)
+            // requires getNewBlock(finalState3(), 0) == getNewBlock(intermediateState3_1(), 0)
+            requires forall ns1:NodeState, ns2:NodeState, r:nat | ns1.blockchain == ns2.blockchain && ns1.id == ns2.id :: getNewBlock(ns1, r) == getNewBlock(ns2, r)
             
+            ensures IsValidConfiguration(c);
             ensures |behavior| > 0;
             ensures DSInit(behavior[0],c);
             ensures (forall i | 0 <= i < |behavior| :: validDSState(behavior[i]))
