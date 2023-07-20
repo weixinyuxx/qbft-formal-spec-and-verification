@@ -214,66 +214,103 @@ module L1_InstrDSStateInvariantsHeavyb
 
                         assert cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)) + 
                                 newMessagesSentToItself);
-                        var m := getCommitSealsReverse(fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)) + 
-                                newMessagesSentToItself, cs);
-                        // var allMessagesSentIncToItself  := fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)) + newMessagesSentToItself;
+                        var allMessagesSentIncToItself  := fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)) + newMessagesSentToItself;
 
-                        // assert cs in getCommitSeals(allMessagesSentIncToItself);
+                        assert cs in getCommitSeals(allMessagesSentIncToItself);
 
-                        // var m := getCommitSealsReverse(allMessagesSentIncToItself, cs);
+                        var m := getCommitSealsReverse(allMessagesSentIncToItself, cs);
 
                         if m.Commit?
                         {
-                            assert InstrNodeNextSingleStep(s.nodes[node], messagesReceived, s'.nodes[node],messagesSentByTheNodes);
-                            assert NodeNextSingleStep(current.nodeState, messagesReceived, next.nodeState, messagesSentByTheNodes);
-                            var newTime :| 
-                                var currentWithNewMessagesReceived :=
-                                    current.nodeState.(
-                                        messagesReceived := newMessagesReceived,
-                                        localTime := newTime
-                                    );
-
-                                NodeNextSubStep(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-                            var currentWithNewMessagesReceived :=
-                                    current.nodeState.(
-                                        messagesReceived := newMessagesReceived,
-                                        localTime := newTime
-                                    );
-                            assert NodeNextSubStep(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-                            // assert m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)) + 
-                            //     newMessagesSentToItself;
-                            assume m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes));
-                            assert exists msg:QbftMessageWithRecipient | msg in messagesSentByTheNodes :: msg.message.Commit?;
-                            assert !UponNewBlock(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-                            assert !UponBlockTimeout(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-                            assert !UponProposal(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-                            assert !UponCommit(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-                            assert !UponRoundChange(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-                            assert !UponRoundTimeout(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-                            assert UponPrepare(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
-
-
-
-                            // assert validInstrState(s.nodes[node]);
-                            // assert indInvInstrNodeStateTypes(s.nodes[node]);
-                            // assert InstrNodeNextSingleStep(s.nodes[node],messagesReceived,s'.nodes[node],messagesSentByTheNodes);
-                            // // assert m in allMessagesSentIncToItself && isMsgWithSignedPayload(m);
+                            assert validInstrState(s.nodes[node]);
+                            assert indInvInstrNodeStateTypes(s.nodes[node]);
+                            assert InstrNodeNextSingleStep(s.nodes[node],messagesReceived,s'.nodes[node],messagesSentByTheNodes);
+                            assert m in allMessagesSentIncToItself && isMsgWithSignedPayload(m);
                             // lemmaAllSentAreSignedByTheNodeExNotForAll(s.nodes[node],messagesReceived,s'.nodes[node],messagesSentByTheNodes, m);
                             // assert recoverSignature(m) == s.nodes[node].nodeState.id;
                             // assert recoverSignature(m) == node;
                             // assert node == csAuthor;
-                            // // // assert m in s'.nodes[node].nodeState.messagesReceived;
-                            // // // lemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s, s');
+                            // // assert m in s'.nodes[node].nodeState.messagesReceived;
+                            // // lemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s, s');
                             // lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSignerHelper4(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node, m, csAuthor);
                             // assert m in getAllMessagesSentByTheNode(s', csAuthor);
                             // assert m in getAllMessagesSentByInsrNodeState(s'.nodes[node]);
-                            assert optionIsPresent(currentWithNewMessagesReceived.proposalAcceptedForCurrentRound);
-                            var pm := currentWithNewMessagesReceived.proposalAcceptedForCurrentRound.value;
-                            assert pm in s'.nodes[node].proposalsAccepted;
-                            var b' := pm.proposedBlock;
-                            assert m.commitPayload.unsignedPayload.height == b'.header.height;
-                            assert m.commitPayload.unsignedPayload.round == b'.header.roundNumber;
-                            assert m.commitPayload.unsignedPayload.digest == digest(b');
+
+                            // assert InstrNodeNextSingleStep(s.nodes[node], messagesReceived, s'.nodes[node],messagesSentByTheNodes);
+                            // assert NodeNextSingleStep(current.nodeState, messagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // var newTime :| 
+                            //     var currentWithNewMessagesReceived :=
+                            //         current.nodeState.(
+                            //             messagesReceived := newMessagesReceived,
+                            //             localTime := newTime
+                            //         );
+
+                            //     NodeNextSubStep(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // var currentWithNewMessagesReceived :=
+                            //         current.nodeState.(
+                            //             messagesReceived := newMessagesReceived,
+                            //             localTime := newTime
+                            //         );
+                            // assert NodeNextSubStep(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // // assert m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes)) + 
+                            // //     newMessagesSentToItself;
+                            // assume m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(multiset(messagesSentByTheNodes));
+                            // assert exists msg:QbftMessageWithRecipient | msg in messagesSentByTheNodes :: msg.message.Commit?;
+                            // var msg:QbftMessageWithRecipient :| msg in messagesSentByTheNodes
+                            //             && msg.message.Commit?
+                            //             && msg.message == m;
+                            // // assert !UponNewBlock(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // // assert !UponBlockTimeout(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // // assert !UponProposal(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // // assert !UponCommit(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // // assert !UponRoundChange(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // // assert !UponRoundTimeout(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+                            // assume UponPrepare(currentWithNewMessagesReceived, next.nodeState, messagesSentByTheNodes);
+
+
+                            // // assert validInstrState(s.nodes[node]);
+                            // // assert indInvInstrNodeStateTypes(s.nodes[node]);
+                            // // assert InstrNodeNextSingleStep(s.nodes[node],messagesReceived,s'.nodes[node],messagesSentByTheNodes);
+                            // // // assert m in allMessagesSentIncToItself && isMsgWithSignedPayload(m);
+                            // // lemmaAllSentAreSignedByTheNodeExNotForAll(s.nodes[node],messagesReceived,s'.nodes[node],messagesSentByTheNodes, m);
+                            // // assert recoverSignature(m) == s.nodes[node].nodeState.id;
+                            // // assert recoverSignature(m) == node;
+                            // // assert node == csAuthor;
+                            // // // // assert m in s'.nodes[node].nodeState.messagesReceived;
+                            // // // // lemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s, s');
+                            // // lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSignerHelper4(s, s', messagesSentByTheNodes, messagesReceivedByTheNodes, node, m, csAuthor);
+                            // // assert m in getAllMessagesSentByTheNode(s', csAuthor);
+                            // // assert m in getAllMessagesSentByInsrNodeState(s'.nodes[node]);
+
+                            // assert optionIsPresent(currentWithNewMessagesReceived.proposalAcceptedForCurrentRound);
+                            // var pm := currentWithNewMessagesReceived.proposalAcceptedForCurrentRound.value;
+                            // assert &&   var cuPayload := m.commitPayload.unsignedPayload;
+                            //             var puPayload := pm.proposalPayload.unsignedPayload;
+                            //     &&  puPayload.height == cuPayload.height
+                            //     &&  puPayload.round == cuPayload.round
+                            //     &&  digest(pm.proposedBlock) == cuPayload.digest
+                            //     &&  signHash(hashBlockForCommitSeal(pm.proposedBlock), s.nodes[node].nodeState.id) == cuPayload.commitSeal
+                            //     && pm in s'.nodes[node].proposalsAccepted;
+                            // var b' := pm.proposedBlock;
+                            // assert forall mm:QbftMessageWithRecipient | mm in messagesSentByTheNodes
+                            //             :: mm.message == Commit(
+                            //                                 signCommit(
+                            //                                     UnsignedCommit(
+                            //                                         |current.nodeState.blockchain|,
+                            //                                         current.nodeState.round,
+                            //                                         signHash(hashBlockForCommitSeal(b'), node),
+                            //                                         digest(b')),
+                            //                                         node
+                            //                                     )
+                            //                                 );
+                            
+                            // assert m.commitPayload.unsignedPayload.height == b.header.height
+                            //     && m.commitPayload.unsignedPayload.round == b.header.roundNumber by {
+                            //         lemmaSignedHash();
+                            //     }
+
+
+                            
                             
                             // assert 
                             //     && pm in s'.nodes[node].proposalsAccepted
@@ -302,7 +339,7 @@ module L1_InstrDSStateInvariantsHeavyb
                             // assert m.commitPayload.unsignedPayload.round == b.header.roundNumber;
                             // assert m.commitPayload.unsignedPayload.digest == digest(b'); 
                         
-                            assert pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s',b,csAuthor);
+                            // assert pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s',b,csAuthor);
                         }   
                     //     else
                     //     {
@@ -567,8 +604,16 @@ module L1_InstrDSStateInvariantsHeavyb
                         
                             assert pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s',b,csAuthor);
                         }   
-                        else
+                        else if m.NewBlock?
                         {
+                            assert pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s,b,csAuthor);
+                            assert m.block.header.commitSeals <= getCommitSeals(current.nodeState.messagesReceived);
+                            assert current.nodeState.messagesReceived <= allMesssagesSentIncSentToItselfWithoutRecipient(s);
+                            assert m.block.header.commitSeals <= getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s));
+                            assert cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s));
+                            assert pThereExistCommitMessageSentByCommitSealSignerBlockAndProposalAcceptedSuchThatBlockIsTheProposalAcceptedBlockIsTheSameExceptForCommitSealsAsTheBlockSuppliedAndCommitMessageHeightRoundAndDigestAreConsistentWithtTheBlock(s',b,csAuthor);
+
+
                             lemmaAllNewBlockSentIncItselfThereIsACommitInReceived(s.nodes[node],messagesReceived,s'.nodes[node],messagesSentByTheNodes);
                             assert exists cm ::  && cm in s'.nodes[node].nodeState.messagesReceived
                                                 && cm.Commit?

@@ -158,7 +158,7 @@ module L1_InstrNodeStateInvariants
     requires InstrNodeNextSingleStep(current, inQbftMessages, next, outQbftMessages)
     ensures indInvInstrNodeStateTypes(next)
     ensures indInvInstrNodeStateProposalsAccepted(next)
-    ensures invInstrNodeStateProposalsAccepted(next)
+    ensures invInstrNodeStateProposalsAccepted(next) 
     {
         var cns := current.nodeState;
         var nns := next.nodeState;
