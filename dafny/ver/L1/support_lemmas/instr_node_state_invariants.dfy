@@ -280,6 +280,7 @@ module L1_InstrNodeStateInvariants
                         && m1.proposalPayload.unsignedPayload.height > 0
                     :: 
                         && m1.proposalPayload.unsignedPayload.height <= |s.nodeState.blockchain|
+                        && (m1.proposedBlock.header.commitSeals == {})
                         && isValidProposalJustification(m1, s.nodeState.blockchain[..m1.proposalPayload.unsignedPayload.height])
     }
 

@@ -734,6 +734,7 @@ module L1_AuxFunctionsProof
 
     predicate isValidProposalJustification(m:QbftMessage, blockchain: Blockchain)
     requires proposerPrecondition(blockchain)
+    ensures isValidProposalJustification(m, blockchain) ==> m.Proposal? && m.proposedBlock.header.commitSeals == {}
     {
         && m.Proposal?
         && m.proposalPayload.unsignedPayload.height == |blockchain|

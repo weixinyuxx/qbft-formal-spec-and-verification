@@ -13,6 +13,7 @@ include "instr_dsstate_networking_common_invariants.dfy"
 include "networking_invariants.dfy"
 include "networking_invariants_lemmas.dfy"
 include "instr_node_state_invariants.dfy"
+include "added_node_state_invariants.dfy"
 include "quorum.dfy"
 include "general_lemmas.dfy"
 include "../theorems_defs.dfy"
@@ -38,6 +39,7 @@ module L1_InstrDSStateInvariantsDefs
     import opened L1_InstrDSStateNetworkingCommonInvariants
     import opened L1_NetworkingInvariantsLemmas
     import opened L1_TheoremsDefs
+    import opened L1_AddedNodeStateInvariants
 
           
     predicate invNoConflictingHonestPrepareMessagesForTheSameRoundAreEverReceivedByHonestNodes(
@@ -753,7 +755,12 @@ module L1_InstrDSStateInvariantsDefs
         && invIfPreparePaylodSentThenPrepareSent(s)  
         && invIfRoundChangePaylodSentThenRoundChangeSent(s)
         && invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s)
-        && invMessagesReceivedByHonestNodesHaveBeenSent(s)      
+        && invMessagesReceivedByHonestNodesHaveBeenSent(s) 
+
+        && invProposalEmpty(s)
+        && invProposalSentByHonestNodeHasEmptyCommitSeals(s)
+        && invRoundChangeSentByHonestNodeHasEmptyCommitSeals(s)
+        && invLastPreparedBlockHasEmptyCommitSeals(s)
     }
 
     predicate allIndInv(s: InstrDSState) 

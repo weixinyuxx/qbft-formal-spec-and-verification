@@ -436,10 +436,49 @@ module L1_InstrDSStateInvariantsHeavyb
         }
         
     }
+    lemma lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(
+        s:InstrDSState, 
+        s': InstrDSState
+    )    
+    requires seqToSet(s.configuration.nodes) == s.nodes.Keys
+    requires validInstrDSStateEx(s)   
+    requires liftIndInvInstrNodeStateToInstrDSState(indInvInstrNodeState)(s)
+    requires indInvLemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
+    requires invMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s)
+    requires invAllSignedPayloadsReceivedByAnyHonestNodeAndSignedByAnHonestNodeHaveBeenSentByTheHonestNode(s)
+    requires invIfPreparePaylodSentThenPrepareSent(s)
+    requires invNoConflictingHonestPrepareMessagesForTheSameRoundAreEverReceivedByHonestNodes(s)
+    requires invForEveryCommitSealsSignedByAnHonestNodeExcludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s)
+    requires invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s)
+    requires invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s)
+    requires InstrDSNextSingle(s, s')
+    // ensures liftIndInvInstrNodeStateToInstrDSState(indInvInstrNodeState)(s')
+    // ensures indInvLemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s')
+    // ensures invMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s')    
+    // ensures invNoConflictingHonestPrepareMessagesForTheSameRoundAreEverReceivedByHonestNodes(s')  
+    // ensures invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s')
+    // ensures invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s')
+    {
+        // lemmaInvNoConflictingHonestPrepareMessagesForTheSameRoundAreEverReceivedByHonestNodes(s, s');
+        // lemmaSignedHash();
+        // lemmaDigest();
+        // lemmaSignedPrepare();
+        // lemmaSignedCommit();
+        // lemmaSignedProposal();
+        // lemmaSignedRoundChange();
+        // lemmaGetSetOfSignedPayloads();
+        assert s'.adversary.messagesReceived <= fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent);
+        forall cs | cs in getCommitSeals(s'.adversary.messagesReceived)
+            ensures cs in getCommitSeals(fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent))
+            {
+                getCommitSealsTransitivity(s'.adversary.messagesReceived, fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.environment.allMessagesSent), cs);
+            }
+        assert invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s');
+    }
     // 222 s 
     // TODO: Check names invariants that are used more like ind invariant. Perhaps we should not discriminate between the two anyway.
     // Then should we change the name of the lemma?
-    lemma lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(
+    lemma lemmaInvForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSignerd(
         s:InstrDSState, 
         s': InstrDSState
     )    

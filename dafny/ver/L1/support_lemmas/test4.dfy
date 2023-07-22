@@ -20,6 +20,7 @@ include "instr_dsstate_invariants_defs.dfy"
 include "../theorems_defs.dfy"
 include "instr_dsstate_invariants_1.dfy"
 
+include "added_node_state_invariants.dfy"
 
 // TODO: Rename file and module
 module L1_InstrDSStateInvariantsHeavyb
@@ -46,8 +47,9 @@ module L1_InstrDSStateInvariantsHeavyb
     import opened L1_TheoremsDefs
     import opened L1_InstrDSStateInvariantsHeavy
     import opened L1_Adversary
+    import opened L1_AddedNodeStateInvariants
 
-    
+
 
 
     lemma getCommitSealsReverse(msg:set<QbftMessage>, cs: Signature) returns (m: QbftMessage)
@@ -105,13 +107,23 @@ module L1_InstrDSStateInvariantsHeavyb
     requires invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s)
     requires invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s)
     requires InstrDSNextSingle(s, s')
+    requires invProposalSentByHonestNodeHasEmptyCommitSeals(s)
+    requires invRoundChangeSentByHonestNodeHasEmptyCommitSeals(s)
+    requires invLastPreparedBlockHasEmptyCommitSeals(s)
     // ensures liftIndInvInstrNodeStateToInstrDSState(indInvInstrNodeState)(s')
     // ensures indInvLemmaMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s')
     // ensures invMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s')    
     // ensures invNoConflictingHonestPrepareMessagesForTheSameRoundAreEverReceivedByHonestNodes(s')  
-    ensures invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s')
+    // ensures invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s')
     // ensures invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s')
+
     {
+        lemmaIndInvProposalEmpty(s, s');
+        assert invProposalSentByHonestNodeHasEmptyCommitSeals(s');
+
+        lemmaIndInvRoundChangeEmpty(s, s');
+        assert invRoundChangeSentByHonestNodeHasEmptyCommitSeals(s');
+
         lemmaInvNoConflictingHonestPrepareMessagesForTheSameRoundAreEverReceivedByHonestNodes(s, s');
         lemmaSignedHash();
         lemmaDigest();
@@ -157,10 +169,24 @@ module L1_InstrDSStateInvariantsHeavyb
                         var m := getCommitSealsReverse(allMessagesSentIncToItself, cs);
                         if m.Proposal?
                         {
+                            assert cs in m.proposedBlock.header.commitSeals;
                             
-                            assert cs in getCommitSeals(allMesssagesSentIncSentToItselfWithoutRecipient(s));
+                            assert invProposalSentByHonestNodeHasEmptyCommitSeals(s');
+                            assert invInstrNodeStateIfProposalSentThenEmptyCommitSeals(s'.nodes[node]);
+                            assert m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.nodes[node].messagesSent) + s'.nodes[node].messagesSentToItself;
+                            assert m.proposedBlock.header.commitSeals == {};
                             assert false;
-                        }                                                                                          
+                        } else if m.RoundChange?
+                        {
+                            assert && m.proposedBlockForNextRound.Optional?
+                                && cs in m.proposedBlockForNextRound.value.header.commitSeals;
+                            
+                            assert invRoundChangeSentByHonestNodeHasEmptyCommitSeals(s');
+                            assert invInstrNodeStateIfRoundChangeSentThenEmptyCommitSeals(s'.nodes[node]);
+                            assert m in fromMultisetQbftMessagesWithRecipientToSetOfMessages(s'.nodes[node].messagesSent) + s'.nodes[node].messagesSentToItself;
+                            assert m.proposedBlockForNextRound.Optional? ==> m.proposedBlockForNextRound.value.header.commitSeals == {};
+                            assert false;
+                        }                                                                    
                     }
                     
                 }               

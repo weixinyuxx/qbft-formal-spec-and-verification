@@ -527,8 +527,19 @@ module L1_AuxiliaryFunctionsAndLemmas
         validateBlock: Block -> bool,
         roundLeader: Address,
         validators:seq<Address>)
+        ensures (isProposalJustification( 
+        roundChanges, 
+        prepares,
+        setOfAvailableBlocks,      
+        height,
+        round,
+        block,
+        validateBlock,
+        roundLeader,
+        validators)) ==> (block.header.commitSeals == {})
     {
-        if round == 0 then 
+        && block.header.commitSeals == {}
+        && (if round == 0 then 
             && validateBlock(block)
             && block.header.roundNumber == 0
             && block.header.height == height
@@ -563,7 +574,7 @@ module L1_AuxiliaryFunctionsAndLemmas
                                                 optionGet(rcm.unsignedPayload.preparedRound),
                                                 optionGet(rcm.unsignedPayload.preparedValue),
                                                 validators
-                                            ))
+                                            )))
     }
 
     /**
