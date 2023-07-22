@@ -500,7 +500,7 @@ module L1_InstrDSStateInvariantsHeavy
     ensures invMessagesReceivedAndSignedByHonestNodesHaveBeenSentByTheHonestNodes(s')    
     ensures invNoConflictingHonestPrepareMessagesForTheSameRoundAreEverReceivedByHonestNodes(s')  
     ensures invForEveryCommitSealsSignedByAnHonestNodeIncludingSentToItselfThereExistsAMatchingCommitMessageSentByTheCommitSealSigner(s')
-    // ensures invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s')
+    ensures invCommitSealsInAdversaryMessagesReceivedAreSubsetOfCommitSealsSent(s')
     {
         lemmaInvNoConflictingHonestPrepareMessagesForTheSameRoundAreEverReceivedByHonestNodes(s, s');
         lemmaSignedHash();
