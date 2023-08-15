@@ -20,6 +20,8 @@ module L1_Theorems {
     predicate consistency(t: Trace)
     {
         forall i,n1,n2 |
+                    // && n1 in t(i).nodes.Keys
+                    // && n2 in t(i).nodes.Keys
                     && isHonest(t(i),n1)
                     && isHonest(t(i),n2)
                 ::
