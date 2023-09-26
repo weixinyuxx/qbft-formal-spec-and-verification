@@ -119,21 +119,22 @@ module L1_CommonFunctions{
                 ::
                     s)
         
-        +
+        // below are the added part
+        // +
 
-        (set m,s |  && m in msgs
-                    && m.Proposal?
-                    && s in m.proposedBlock.header.commitSeals
-                ::
-                    s)
-        +
+        // (set m,s |  && m in msgs
+        //             && m.Proposal?
+        //             && s in m.proposedBlock.header.commitSeals
+        //         ::
+        //             s)
+        // +
 
-        (set m,s |  && m in msgs
-                    && m.RoundChange?
-                    && m.proposedBlockForNextRound.Optional?
-                    && s in m.proposedBlockForNextRound.value.header.commitSeals
-                ::
-                    s)
+        // (set m,s |  && m in msgs
+        //             && m.RoundChange?
+        //             && m.proposedBlockForNextRound.Optional?
+        //             && s in m.proposedBlockForNextRound.value.header.commitSeals
+        //         ::
+        //             s)
     }
 
     lemma lUniqueSeq<T>(s:seq<T>)
